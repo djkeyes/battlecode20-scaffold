@@ -14,7 +14,7 @@ public class MapUtils {
     // (otherwise teams further away from the origin get an unfair hint about the map size), so I'm leaving this
     // over-general code here. -daniel
 
-    public static Integer minRow, maxRow, minCol, maxCol;
+    public static Integer minRow = 0, maxRow, minCol = 0, maxCol;
     public static Integer mapWidth, mapHeight;
     public static int maxHorizontalSight;
 

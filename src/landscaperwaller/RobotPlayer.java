@@ -92,6 +92,8 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
+        MapUtils.checkMapEdges();
+
         if (tryClusteredBuild() != BehaviorResult.FAIL) {
             return;
         }
@@ -106,13 +108,15 @@ public strictfp class RobotPlayer {
     }
 
     private static void randomlyExplore() throws GameActionException {
-        if (randomExplorationDestination == null || turnCount - randomExplorationDestinationStartTurn > 50) {
-            randomExplorationDestination =
-                    rc.getLocation().translate((int) ((Math.random() - 0.5) * GameConstants.MAP_MAX_WIDTH),
-                            (int) ((Math.random() - 0.5) * GameConstants.MAP_MAX_WIDTH));
+        if (randomExplorationDestination == null || turnCount - randomExplorationDestinationStartTurn > 50 || rc.getLocation().isAdjacentTo(randomExplorationDestination)) {
+            int height = (MapUtils.mapHeight != null) ? MapUtils.mapHeight : GameConstants.MAP_MAX_HEIGHT;
+            int width = (MapUtils.mapWidth != null) ? MapUtils.mapWidth : GameConstants.MAP_MAX_WIDTH;
+            int row = (int) (Math.random() * width) + MapUtils.minRow;
+            int col = (int) (Math.random() * height) + MapUtils.minCol;
+
+            randomExplorationDestination = new MapLocation(col, row);
             randomExplorationDestinationStartTurn = turnCount;
         }
-
         badPathFindTo(randomExplorationDestination);
     }
 
