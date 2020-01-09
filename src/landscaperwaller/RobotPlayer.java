@@ -92,8 +92,6 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
-        MapUtils.checkMapEdges();
-
         if (tryClusteredBuild() != BehaviorResult.FAIL) {
             return;
         }
@@ -109,10 +107,10 @@ public strictfp class RobotPlayer {
 
     private static void randomlyExplore() throws GameActionException {
         if (randomExplorationDestination == null || turnCount - randomExplorationDestinationStartTurn > 50 || rc.getLocation().isAdjacentTo(randomExplorationDestination)) {
-            int height = (MapUtils.mapHeight != null) ? MapUtils.mapHeight : GameConstants.MAP_MAX_HEIGHT;
-            int width = (MapUtils.mapWidth != null) ? MapUtils.mapWidth : GameConstants.MAP_MAX_WIDTH;
-            int row = (int) (Math.random() * width) + MapUtils.minRow;
-            int col = (int) (Math.random() * height) + MapUtils.minCol;
+            final int height = rc.getMapHeight();
+            final int width = rc.getMapWidth();
+            int row = (int) (Math.random() * width);
+            int col = (int) (Math.random() * height);
 
             randomExplorationDestination = new MapLocation(col, row);
             randomExplorationDestinationStartTurn = turnCount;
