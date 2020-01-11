@@ -23,7 +23,7 @@ import static bytecodes.Assert.assertEquals;
  *       expected = <YOUR BYTECODES>;
  *       actual = after - before;
  *       assertEquals(expected, actual);
- * </pre>
+ * }</pre>
  * <p>
  * Just insert the code you would like to test in <YOUR FUNCTION>, and insert a dummy value like 123 in <YOUR
  * BYTECODES>. Then run this player. Your code will fail (unless you guessed correctly, and your function uses
