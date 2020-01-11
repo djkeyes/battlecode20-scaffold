@@ -24,7 +24,10 @@ maps = [
     'FourLakeLand',
     'SoupOnTheSide',
     'TwoForOneAndTwoForAll',
-    'WaterBot'
+    'WaterBot',
+    'Big',
+    'Small'
+
 ]
 
 benchmark_prefix = 'benchmark'
