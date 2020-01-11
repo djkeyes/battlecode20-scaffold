@@ -10,24 +10,26 @@ import static bytecodes.Assert.assertEquals;
  * This class tests the bytecode usage of various functions and language constructs. It does it by creating a
  * RobotPlayer, and then literally executing functions and timing their runtime. If you want to run these tests, you
  * can do it with, for example, the following command (use gradle on windows):
- *
+ * <pre>
  *      ./gradlew run -PteamA=bytecodes -PteamB=noop -Pmaps=WaterBot
- *
+ * </pre>
  * If you would like to test something yourself, have a look at the file. Most of the functions in this file are
  * structured in the following form:
- *
- *         before = Clock.getBytecodeNum();
- *         <YOUR FUNCTION>
- *         after = Clock.getBytecodeNum();
- *         expected = <YOUR BYTECODES>;
- *         actual = after - before;
- *         assertEquals(expected, actual);
- *
+ * <p>
+ * <pre>{@code
+ *       before = Clock.getBytecodeNum();
+ *       <YOUR FUNCTION>
+ *       after = Clock.getBytecodeNum();
+ *       expected = <YOUR BYTECODES>;
+ *       actual = after - before;
+ *       assertEquals(expected, actual);
+ * </pre>
+ * <p>
  * Just insert the code you would like to test in <YOUR FUNCTION>, and insert a dummy value like 123 in <YOUR
  * BYTECODES>. Then run this player. Your code will fail (unless you guessed correctly, and your function uses
  * exactly 123 bytecodes). When it fails, the logs will show the true bytecode usage. You can copy and paste those
  * into the code to make the assertion succeed.
- *
+ * <p>
  * TODO(daniel):
  * It might be nice to have some kind of automated test / generator for this information. I'm not sure how to inject
  * the code profiler into junit tests or how to mock the various battlecode classes, so instead this is a
@@ -70,10 +72,10 @@ public final strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) {
         // TODO(daniel): it would be nice to test the cost of static initialization
-        int bytecodesAtStart = Clock.getBytecodeNum();
+        final int bytecodesAtStart = Clock.getBytecodeNum();
         System.out.println("bytecodes at start of tests: " + bytecodesAtStart);
-        int bytecodesAfterPrint = Clock.getBytecodeNum();
-        assertEquals(8, bytecodesAfterPrint-bytecodesAtStart);
+        final int bytecodesAfterPrint = Clock.getBytecodeNum();
+        assertEquals(8, bytecodesAfterPrint - bytecodesAtStart);
 
         try {
             runTests(rc);
