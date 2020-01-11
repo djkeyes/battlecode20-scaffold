@@ -70,8 +70,10 @@ public final strictfp class RobotPlayer {
                 Clock.yield();
 
             } catch (final Exception e) {
-//                System.out.println(rc.getType() + " Exception");
-                e.printStackTrace();
+                if (System.getProperty("bc.testing.local-testing").equals("true")) {
+                    System.out.println(rc.getType() + " Exception");
+                    e.printStackTrace();
+                }
             }
         }
     }
