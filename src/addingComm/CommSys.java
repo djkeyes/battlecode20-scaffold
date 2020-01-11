@@ -276,19 +276,19 @@ public class CommSys
         int shift=0;
         if(odd_mask==ENCODE_EVEN)
         {
-            finalMess|=(CheckSumc&PLAN_1_CHECK_SUM_MASK_ODD);
+            finalMess|=(CheckSum&PLAN_1_CHECK_SUM_MASK_ODD);
             shift=0;
         }
         else
         {
-            finalMess|=(CheckSumc&PLAN_1_CHECK_SUM_MASK_EVEN);            
+            finalMess|=(CheckSum&PLAN_1_CHECK_SUM_MASK_EVEN);            
             shift=1;
         }
         for(int i=0;i<16;i++)
         {
-            if(orgMess&(1<<i))
+            if((orgMess&(1<<i))!=0)
             {
-                finalMess|=(1<<(2*i+shift))
+                finalMess|=(1<<(2*i+shift));
             }
         }
         return finalMess;
