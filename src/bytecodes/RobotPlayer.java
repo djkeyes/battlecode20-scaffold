@@ -75,7 +75,7 @@ public final strictfp class RobotPlayer {
         final int bytecodesAtStart = Clock.getBytecodeNum();
         System.out.println("bytecodes at start of tests: " + bytecodesAtStart);
         final int bytecodesAfterPrint = Clock.getBytecodeNum();
-        assertEquals(8, bytecodesAfterPrint - bytecodesAtStart);
+        assertEquals(9, bytecodesAfterPrint - bytecodesAtStart);
 
         try {
             runTests(rc);
@@ -245,7 +245,7 @@ public final strictfp class RobotPlayer {
         before = Clock.getBytecodeNum();
         arr = new int[0];
         after = Clock.getBytecodeNum();
-        expected = 3;
+        expected = 4;
         actual = after - before;
         assertEquals(expected, actual);
         assertEquals(expected, actual);
@@ -285,7 +285,7 @@ public final strictfp class RobotPlayer {
         before = Clock.getBytecodeNum();
         x = new ArrayList();
         after = Clock.getBytecodeNum();
-        int expected = 21;
+        int expected = 23;
         int actual = after - before;
         assertEquals(expected, actual);
 
@@ -797,12 +797,12 @@ public final strictfp class RobotPlayer {
         actual = after - before;
         assertEquals(expected, actual);
 
-        // holy shit, 42? geez that's expensive!
+        // holy shit, 45? geez that's expensive!
         for (int i = 0; i < 10; i++) {
             before = Clock.getBytecodeNum();
             arrayList.add(i);
             after = Clock.getBytecodeNum();
-            expected = 42;
+            expected = 45;
             actual = after - before;
             assertEquals(expected, actual);
         }
@@ -1029,7 +1029,7 @@ public final strictfp class RobotPlayer {
                 break;
         }
         after = Clock.getBytecodeNum();
-        expected = 38;
+        expected = 42;
         actual = after - before;
         assertEquals(expected, actual);
 
@@ -1062,6 +1062,7 @@ public final strictfp class RobotPlayer {
         expected = 6;
         actual = after - before;
         assertEquals(expected, actual);
+        // conclusion: the first usage of an enum has a much higher cost (possibly due to static initialization)
 
         before = Clock.getBytecodeNum();
         switch (y) {
@@ -1166,14 +1167,14 @@ public final strictfp class RobotPlayer {
         before = Clock.getBytecodeNum();
         String c = a + b;
         after = Clock.getBytecodeNum();
-        expected = 8;
+        expected = 9;
         actual = after - before;
         assertEquals(expected, actual);
 
         before = Clock.getBytecodeNum();
         System.out.println(a + b);
         after = Clock.getBytecodeNum();
-        expected = 8;
+        expected = 9;
         actual = after - before;
         assertEquals(expected, actual);
     }
