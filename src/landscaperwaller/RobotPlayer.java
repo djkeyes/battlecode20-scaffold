@@ -135,6 +135,9 @@ public final strictfp class RobotPlayer {
                     break;
                 }
                 final MapLocation loc = rc.getLocation().translate(offset[0], offset[1]);
+                if (!onTheMap(rc, loc)) {
+                    continue;
+                }
                 final int soup = rc.senseSoup(loc);
                 if (soup > 0) {
                     targetLoc = loc;
@@ -198,6 +201,11 @@ public final strictfp class RobotPlayer {
             }
         }
         return BehaviorResult.FAIL;
+    }
+
+    private static boolean onTheMap(final RobotController rc, final MapLocation loc) {
+        // FIXME: this is a quick fix, until the function rc.onTheMap is fixed in the engine.
+        return loc.x >= 0 && loc.y >= 0 && loc.x < rc.getMapWidth() && loc.y < rc.getMapHeight();
     }
 
     private static BehaviorResult tryClusteredBuild() throws GameActionException {
@@ -267,7 +275,7 @@ public final strictfp class RobotPlayer {
 
         for (final Direction d : candidateDirs) {
             final MapLocation loc = hqLocation.add(d);
-            if (!rc.isLocationOccupied(loc)) {
+            if (rc.canSenseLocation(loc) && !rc.isLocationOccupied(loc)) {
                 final int distSq = rc.getLocation().distanceSquaredTo(loc);
                 if (distSq < closestDistSq) {
                     closestDistSq = distSq;
@@ -313,8 +321,11 @@ public final strictfp class RobotPlayer {
         for (int offset = 0; offset <= 4; ++offset) {
             final Direction dir = Direction.values()[(targetDir.ordinal() + offset) % 8];
             // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
-            if (!rc.getType().canFly() && rc.senseFlooding(rc.getLocation().add(dir))) {
-                continue;
+            if (!rc.getType().canFly()) {
+                final MapLocation next = rc.getLocation().add(dir);
+                if (onTheMap(rc, next) && rc.senseFlooding(next)) {
+                    continue;
+                }
             }
             if (rc.canMove(dir)) {
                 rc.move(dir);
@@ -323,8 +334,11 @@ public final strictfp class RobotPlayer {
             if ((8 - offset) % 8 != offset) {
                 final Direction otherDir = Direction.values()[(targetDir.ordinal() + 8 - offset) % 8];
                 // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
-                if (!rc.getType().canFly() && rc.senseFlooding(rc.getLocation().add(dir))) {
-                    continue;
+                if (!rc.getType().canFly()) {
+                    final MapLocation next = rc.getLocation().add(dir);
+                    if (onTheMap(rc, next) && rc.senseFlooding(next)) {
+                        continue;
+                    }
                 }
                 if (rc.canMove(otherDir)) {
                     rc.move(otherDir);
