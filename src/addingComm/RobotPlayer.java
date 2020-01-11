@@ -606,13 +606,13 @@ class CommSys
                 // Also, take off the first transaction so that ReadMessage won't read this again
                 // HOW???
                 // Instead of removing the message, let makes the first message become invalid
-                // This might not be a most clever way to do this, but it quick, so!
+                // This might not be the most clever way to do this, but it's quick, so!
                 Magazine[0]= new Transaction(1,new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH],1);
                 return true;
             }
             else
             {
-                // if this block we examining is that last before the current
+                // if this block we examining is the last before the current
                 // send in the first transaction
                 if(LastReadRound==CurrentRound-1)
                 {
