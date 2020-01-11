@@ -544,7 +544,7 @@ class CommSys
     public final int PLAN_2_CHECK_SUM_MASK_EVEN =   0b00000000000000001111111111111111; // low word for checksum
         // Notice, to get the value of the message, the mask is the complement of the the corresponding checksum
 
-    private int LastReadRound;         // Index of last read transaction in the block chain 
+    private int LastReadRound;         // Index of last read round 
     private int CurrentRound;
     private int[] Key;
     Transaction[] Magazine;                 // Block added in the latest round
@@ -598,7 +598,7 @@ class CommSys
     // Check if key is available
     // Check if no key is because this robot is newly born?
     // or is no key because there is no first block?
-    // place a transaction to create the first block, might be it become our key
+    // place a transaction to create the first block, may be it become our key
     // Increase counter
     private boolean isKeyAvailable()
     {
@@ -611,17 +611,17 @@ class CommSys
             // There is an available block here
             if(Magazine.length!=0)
             {
-                Key=Magazine[0].getMessage();       // Save as the key then
+                Key=Magazine[0].getMessage();       // Save the first transaction as the key then
                 // Also, take off the first transaction so that ReadMessage won't read this again
                 // HOW???
                 // Instead of removing the message, let makes the first message become invalid
-                // This might not be a most clever way to do this, but it quick, so!
+                // This might not be the most clever way to do this, but it's quick, so!
                 Magazine[0]= new Transaction(1,new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH],1);
                 return true;
             }
             else
             {
-                // if this block we examining is that last before the current
+                // if this block we examining is the last before the current
                 // send in the first transaction
                 if(LastReadRound==CurrentRound-1)
                 {
