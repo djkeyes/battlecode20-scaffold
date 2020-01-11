@@ -32,7 +32,32 @@ benchmark_prefix = 'benchmark'
 runs_per_matchup = 2 # 100 or so would be better
 
 ###########################################
+
+# Terminal progress bar, from https://stackoverflow.com/a/34325723
+def printProgressBar(iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = printEnd, flush=True)
+    # Print New Line on Complete
+    if iteration == total:
+        print()
+
 print('performing benchmarks for package \'{}\'...'.format(package_to_test))
+
+print('checking out reference players...')
 
 np.random.seed(2017)
 
@@ -76,6 +101,7 @@ for benchmark in benchmarks:
 
 
 # build packages once
+print('building packages...')
 
 if platform.system() == 'Windows':
     gradle_command = 'gradlew.bat'
@@ -85,6 +111,10 @@ command = [gradle_command, 'build']
 subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 num_wins = np.zeros([len(flattened_benchmarks), len(maps), len(params_to_test)])
+iteration = 0
+total_iterations = num_wins.size * runs_per_matchup
+print('running matches ({} matches total)...'.format(total_iterations))
+printProgressBar(iteration, total_iterations)
 for i, (generated_package, generated_param) in enumerate(flattened_benchmarks):
     # run the match!
     for j, map_name in enumerate(maps):
@@ -129,7 +159,8 @@ for i, (generated_package, generated_param) in enumerate(flattened_benchmarks):
                 winner = tokens[1]
                 if winner == package_to_test:
                     num_wins[i, j, m] += 1.0
-                print('.', end='', flush=True)
+                iteration += 1
+                printProgressBar(iteration, total_iterations)
 
 print()
 win_rate = num_wins / runs_per_matchup
