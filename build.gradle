@@ -10,7 +10,7 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 ext.versions = [
-    battlecode: new File(projectDir, "version.txt").text
+    battlecode: new File(projectDir, "version.txt").text.trim()
     //scala: '2.11.7'
 ]
 
@@ -69,6 +69,18 @@ if (!project.hasProperty("classLocation")) {
 if (!project.hasProperty("replay")) {
     ext.replay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
 }
+if (!project.hasProperty("paramA")) {
+    ext.paramA = ""
+}
+if (!project.hasProperty("paramB")) {
+    ext.paramB = ""
+}
+if (!project.hasProperty("seedA")) {
+    ext.seedA = ""
+}
+if (!project.hasProperty("seedB")) {
+    ext.seedB = ""
+}
 
 // Mark the client as a special dependency, so that we can handle it separately.
 configurations {
@@ -125,7 +137,7 @@ task version {
 task screamForUpdate() {
     group 'battlecode'
     doLast {
-        if (versions.battlecode != new URL("https://2020.battlecode.org/version.txt").text) print("\n\n\n\n\n\n\tNEW VERSION AVAILABLE\n\trun ./gradlew update to download \n\n\n\n")
+        if (versions.battlecode != new URL("https://2020.battlecode.org/version.txt").text.trim()) print("\n\n\n\n\n\n\tNEW VERSION AVAILABLE\n\trun ./gradlew update to download \n\n\n\n")
     }
 }
 
@@ -135,7 +147,7 @@ task update {
     group 'battlecode'
     doLast {
         //overwrites stored version number
-        new File(projectDir, "version.txt").text = new URL("https://2020.battlecode.org/version.txt").text
+        new File(projectDir, "version.txt").text = new URL("https://2020.battlecode.org/version.txt").text.trim()
 
         //overwrites cached version number
         versions.battlecode = new File(projectDir, "version.txt").text
@@ -190,7 +202,8 @@ task run(type: JavaExec, dependsOn: 'build') {
         '-Dbc.game.team-a.url='+project.property('classLocation'),
         '-Dbc.game.team-b.url='+project.property('classLocation'),
         '-Dbc.game.maps='+project.property('maps'),
-        '-Dbc.server.save-file=' +project.property('replay')
+        '-Dbc.server.save-file=' +project.property('replay'),
+        '-Dbc.testing.local-testing=true'
     ]
 }
 task runFromClient(type: JavaExec, dependsOn: 'build') {
@@ -230,6 +243,31 @@ task runDebug(type: JavaExec, dependsOn: 'build') {
             '-Dbc.game.team-b.url='+project.property('classLocation'),
             '-Dbc.game.maps='+project.property('maps'),
             '-Dbc.server.save-file=' + project.property('replay')
+    ]
+}
+task fastrun(type: JavaExec) {
+    description 'Runs a match without starting the client and without checking dependencies (be sure to build beforehand).'
+    group 'battlecode'
+
+    main = 'battlecode.server.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['-c=-']
+    jvmArgs = [
+        '-Dbc.server.mode=headless',
+        '-Dbc.server.map-path=maps',
+        '-Dbc.server.debug=false',
+        '-Dbc.server.robot-player-to-system-out=false',
+        '-Dbc.engine.debug-methods=false',
+        '-Dbc.game.team-a='+project.property('teamA'),
+        '-Dbc.game.team-b='+project.property('teamB'),
+        '-Dbc.game.team-a.url='+project.property('classLocation'),
+        '-Dbc.game.team-b.url='+project.property('classLocation'),
+        '-Dbc.game.maps='+project.property('maps'),
+        '-Dbc.testing.team-a-seed='+project.property('seedA'),
+        '-Dbc.testing.team-b-seed='+project.property('seedB'),
+        '-Dbc.testing.team-a-param='+project.property('paramA'),
+        '-Dbc.testing.team-b-param='+project.property('paramB'),
+        '-Dbc.server.save-file=' + 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
     ]
 }
 
@@ -311,6 +349,12 @@ task unpackClient32(type: Copy, dependsOn: configurations.client32) {
         }
     }
     into 'client32/'
+}
+
+task buildMap(type: JavaExec, dependsOn: 'build') {
+    group 'battlecode'
+    main = 'maps.' + project.property('buildMap')
+    classpath = project.sourceSets.main.runtimeClasspath
 }
 
 unpackClient32.onlyIf { arch32 }
