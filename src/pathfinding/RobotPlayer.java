@@ -3,6 +3,7 @@ package pathfinding;
 import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
+import static pathfinding.SimplePathfinding.badPathFindTo;
 
 public final strictfp class RobotPlayer {
     static final Direction[] cardinalDirections = Direction.cardinalDirections();
@@ -19,6 +20,7 @@ public final strictfp class RobotPlayer {
     private static int randomExplorationDestinationStartTurn = 0;
     private static MapLocation cachedSoupLoc = null;
     private static int miners_built = 0;
+    private static int lastAttackTargetTurn = 0;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -28,6 +30,7 @@ public final strictfp class RobotPlayer {
     public static void run(final RobotController rc) throws GameActionException {
         RobotPlayer.rc = rc;
 
+        int startRoundNum = rc.getRoundNum();
         turnCount = 0;
 
         final String enablePrintingProp = System.getProperty("bc.testing.local-testing");
@@ -35,10 +38,54 @@ public final strictfp class RobotPlayer {
 
         savedSpawnLoc = rc.getLocation();
 
+        try {
+            switch (rc.getType()) {
+                case HQ:
+                    initHQ();
+                    break;
+                case MINER:
+                    initMiner();
+                    break;
+                case REFINERY:
+                    initRefinery();
+                    break;
+                case VAPORATOR:
+                    initVaporator();
+                    break;
+                case DESIGN_SCHOOL:
+                    initDesignSchool();
+                    break;
+                case FULFILLMENT_CENTER:
+                    initFulfillmentCenter();
+                    break;
+                case LANDSCAPER:
+                    initLandscaper();
+                    break;
+                case DELIVERY_DRONE:
+                    initDeliveryDrone();
+                    break;
+                case NET_GUN:
+                    initNetGun();
+                    break;
+            }
+
+            // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+            final int endRoundNum = rc.getRoundNum();
+            if (enablePrinting && endRoundNum != startRoundNum) {
+                System.out.println("Over bytecode limit!");
+                System.out.println("bytecodes used: " + Clock.getBytecodeNum());
+            }
+            Clock.yield();
+
+        } catch (final Exception e) {
+            if (enablePrinting) {
+                System.out.println(rc.getType() + " Exception");
+                e.printStackTrace();
+            }
+        }
+
         //noinspection InfiniteLoopStatement
         while (true) {
-            turnCount += 1;
-            final int startRoundNum = rc.getRoundNum();
             try {
                 switch (rc.getType()) {
                     case HQ:
@@ -77,6 +124,7 @@ public final strictfp class RobotPlayer {
                     System.out.println("bytecodes used: " + Clock.getBytecodeNum());
                 }
                 Clock.yield();
+                startRoundNum = rc.getRoundNum();
 
             } catch (final Exception e) {
                 if (enablePrinting) {
@@ -84,7 +132,36 @@ public final strictfp class RobotPlayer {
                     e.printStackTrace();
                 }
             }
+            turnCount += 1;
         }
+    }
+
+    private static void initNetGun() {
+    }
+
+    private static void initDeliveryDrone() {
+    }
+
+    private static void initLandscaper() {
+        chooseInitialAttackTargetLocation();
+    }
+
+    private static void initFulfillmentCenter() {
+    }
+
+    private static void initDesignSchool() {
+    }
+
+    private static void initVaporator() {
+    }
+
+    private static void initRefinery() {
+    }
+
+    private static void initMiner() {
+    }
+
+    private static void initHQ() {
     }
 
     static void runHQ() throws GameActionException {
@@ -213,7 +290,7 @@ public final strictfp class RobotPlayer {
         return BehaviorResult.FAIL;
     }
 
-    private static boolean onTheMap(final RobotController rc, final MapLocation loc) {
+    static boolean onTheMap(final RobotController rc, final MapLocation loc) {
         // FIXME: this is a quick fix, until the function rc.onTheMap is fixed in the engine.
         return loc.x >= 0 && loc.y >= 0 && loc.x < rc.getMapWidth() && loc.y < rc.getMapHeight();
     }
@@ -322,43 +399,6 @@ public final strictfp class RobotPlayer {
         return badPathFindTo(closestLoc);
     }
 
-    private static BehaviorResult badPathFindTo(final MapLocation target) throws GameActionException {
-        if (target.equals(rc.getLocation())) {
-            return BehaviorResult.FAIL;
-        }
-
-        final Direction targetDir = rc.getLocation().directionTo(target);
-        for (int offset = 0; offset <= 4; ++offset) {
-            final Direction dir = Direction.values()[(targetDir.ordinal() + offset) % 8];
-            // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
-            if (!rc.getType().canFly()) {
-                final MapLocation next = rc.getLocation().add(dir);
-                if (onTheMap(rc, next) && rc.senseFlooding(next)) {
-                    continue;
-                }
-            }
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                return BehaviorResult.SUCCESS;
-            }
-            if ((8 - offset) % 8 != offset) {
-                final Direction otherDir = Direction.values()[(targetDir.ordinal() + 8 - offset) % 8];
-                // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
-                if (!rc.getType().canFly()) {
-                    final MapLocation next = rc.getLocation().add(dir);
-                    if (onTheMap(rc, next) && rc.senseFlooding(next)) {
-                        continue;
-                    }
-                }
-                if (rc.canMove(otherDir)) {
-                    rc.move(otherDir);
-                    return BehaviorResult.SUCCESS;
-                }
-            }
-        }
-        return BehaviorResult.FAIL;
-    }
-
     private static RobotInfo findNearestByType(final RobotInfo[] nearby, final RobotType type) {
         for (final RobotInfo r : nearby) {
             if (r.type == type) {
@@ -422,74 +462,25 @@ public final strictfp class RobotPlayer {
             return;
         }
 
-        // want to form a wall of size 5x5, with evenly spaced landscapers
-        // fill from one edge to the other
-        final int[][] offsets = {{2, 0}, {2, 2}, {2, -2}, {0, 2}, {0, -2}, {-2, 2}, {-2, -2}, {-2, 0}};
-        final int sensorRange = rc.getCurrentSensorRadiusSquared();
-        MapLocation last_unoccupied_location = cachedHqLocation.translate(offsets[offsets.length - 1][0],
-                offsets[offsets.length - 1][1]);
-        for (final int[] offset : offsets) {
-            final MapLocation target = cachedHqLocation.translate(offset[0], offset[1]);
-            if (target.distanceSquaredTo(rc.getLocation()) <= sensorRange) {
-                if (!rc.isLocationOccupied(target) || rc.getLocation().equals(target)) {
-                    last_unoccupied_location = target;
-                    break;
-                }
-            }
-        }
-        if (rc.getLocation().equals(last_unoccupied_location)) {
-            // already there. start shoveling
-            if (rc.getDirtCarrying() > 0) {
-                Direction lowestWall = null;
-                int minWallHeight = 0;
-                for (final Direction d : allDirections()) {
-                    final MapLocation tile = rc.getLocation().add(d);
-                    final int dx = Math.abs(tile.x - cachedHqLocation.x);
-                    final int dy = Math.abs(tile.y - cachedHqLocation.y);
-                    final boolean isWall = (dx == 2 || dy == 2) && (dx <= 2 && dy <= 2);
-                    if (!isWall) {
-                        continue;
-                    }
-                    if (!rc.canDepositDirt(d)) {
-                        continue;
-                    }
-                    final int elevation = rc.senseElevation(tile);
-                    if (lowestWall == null || elevation < minWallHeight) {
-                        minWallHeight = elevation;
-                        lowestWall = d;
-                    }
-                }
-                if (lowestWall != null) {
-                    rc.depositDirt(lowestWall);
-                }
-            } else {
-                Direction highestTrough = null;
-                int maxTroughHeight = 0;
-                for (final Direction d : allDirections()) {
-                    final MapLocation tile = rc.getLocation().add(d);
-                    final int dx = Math.abs(tile.x - cachedHqLocation.x);
-                    final int dy = Math.abs(tile.y - cachedHqLocation.y);
-                    final boolean isTrough = (dx >= 3 || dy >= 3);
-                    if (!isTrough) {
-                        continue;
-                    }
-                    final int elevation = rc.senseElevation(tile);
-                    if (!rc.canDigDirt(d)) {
-                        continue;
-                    }
-                    if (highestTrough == null || elevation > maxTroughHeight) {
-                        maxTroughHeight = elevation;
-                        highestTrough = d;
-                    }
-                }
-                if (highestTrough != null) {
-                    rc.digDirt(highestTrough);
-                }
-            }
-        } else {
-            badPathFindTo(last_unoccupied_location);
-        }
+        chooseAttackTargetLocation();
 
+        BugPathfinding.pathfind();
+
+    }
+
+    private static void chooseInitialAttackTargetLocation() {
+        // initially, just aim for center of map as a staging ground
+        BugPathfinding.setTargetLocation(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
+        lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
+    }
+
+    private static void chooseAttackTargetLocation() {
+        if (rc.getRoundNum() - lastAttackTargetTurn >= 100) {
+            final int symmetryAssumption = (rc.getRoundNum() / 100) % 3;
+            final MapLocation target = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, symmetryAssumption);
+            BugPathfinding.setTargetLocation(target);
+            lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
+        }
     }
 
     static void runDeliveryDrone() throws GameActionException {
