@@ -88,9 +88,6 @@ public final strictfp class RobotPlayer {
     }
 
     static void runHQ() throws GameActionException {
-        for (final MapLocation loc : MapSymmetry.getAllSymmetricCoords(rc, rc.getLocation())) {
-            rc.setIndicatorDot(loc, 255, 255, 255);
-        }
 
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         final RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
