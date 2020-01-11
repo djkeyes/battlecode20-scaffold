@@ -4,7 +4,7 @@ import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
 
-public strictfp class RobotPlayer {
+public final strictfp class RobotPlayer {
     static final Direction[] cardinalDirections = Direction.cardinalDirections();
     static final Direction[] octalDirections = {NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST};
     static final Direction[] diagonalDirections = {NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST};
@@ -25,13 +25,14 @@ public strictfp class RobotPlayer {
      * If this method returns, the robot dies!
      **/
     @SuppressWarnings("unused")
-    public static void run(RobotController rc) throws GameActionException {
+    public static void run(final RobotController rc) throws GameActionException {
         RobotPlayer.rc = rc;
 
         turnCount = 0;
 
         savedSpawnLoc = rc.getLocation();
 
+        //noinspection InfiniteLoopStatement
         while (true) {
             turnCount += 1;
             try {
@@ -68,20 +69,19 @@ public strictfp class RobotPlayer {
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
 
-            } catch (Exception e) {
-                System.out.println(rc.getType() + " Exception");
+            } catch (final Exception e) {
+//                System.out.println(rc.getType() + " Exception");
                 e.printStackTrace();
             }
         }
     }
 
     static void runHQ() throws GameActionException {
-        RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
-        RobotInfo[] miners = findAllByType(nearby, RobotType.MINER);
-        RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
-        RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
+        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
+        final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
         if (miners_built == 0 || (miners_built < 2 && design != null) || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
-            BehaviorResult result = trySpawn(RobotType.MINER);
+            final BehaviorResult result = trySpawn(RobotType.MINER);
             if (result != BehaviorResult.FAIL) {
                 if (result == BehaviorResult.SUCCESS) {
                     miners_built++;
@@ -109,17 +109,13 @@ public strictfp class RobotPlayer {
         if (randomExplorationDestination == null || turnCount - randomExplorationDestinationStartTurn > 50 || rc.getLocation().isAdjacentTo(randomExplorationDestination)) {
             final int height = rc.getMapHeight();
             final int width = rc.getMapWidth();
-            int row = (int) (Math.random() * width);
-            int col = (int) (Math.random() * height);
+            final int row = (int) (Math.random() * width);
+            final int col = (int) (Math.random() * height);
 
             randomExplorationDestination = new MapLocation(col, row);
             randomExplorationDestinationStartTurn = turnCount;
         }
         badPathFindTo(randomExplorationDestination);
-    }
-
-    private static int getCurrentSensorRadiusSquared() throws GameActionException {
-        return (int) Math.round(rc.getType().sensorRadiusSquared * GameConstants.getSensorRadiusPollutionCoefficient(rc.sensePollution(rc.getLocation())));
     }
 
     private static BehaviorResult tryMining() throws GameActionException {
@@ -130,14 +126,14 @@ public strictfp class RobotPlayer {
 
         MapLocation targetLoc = null;
         if (rc.getSoupCarrying() < RobotType.MINER.soupLimit) {
-            int curSensorRadiusSq = getCurrentSensorRadiusSquared();
+            final int curSensorRadiusSq = rc.getCurrentSensorRadiusSquared();
             // this loop has the potential to be egregiously costly
             for (final int[] offset : spiralOffsets) {
                 if (offset[0] * offset[0] + offset[1] * offset[1] > curSensorRadiusSq) {
                     break;
                 }
-                MapLocation loc = rc.getLocation().translate(offset[0], offset[1]);
-                int soup = rc.senseSoup(loc);
+                final MapLocation loc = rc.getLocation().translate(offset[0], offset[1]);
+                final int soup = rc.senseSoup(loc);
                 if (soup > 0) {
                     targetLoc = loc;
                     break;
@@ -167,10 +163,10 @@ public strictfp class RobotPlayer {
             }
         } else {
             if (rc.getSoupCarrying() > 0) {
-                RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
-                RobotInfo nearestRefinery = findNearestByType(nearby, RobotType.REFINERY);
-                RobotInfo nearestHq = findNearestByType(nearby, RobotType.HQ);
-                RobotInfo nearestDropOff = null;
+                final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+                final RobotInfo nearestRefinery = findNearestByType(nearby, RobotType.REFINERY);
+                final RobotInfo nearestHq = findNearestByType(nearby, RobotType.HQ);
+                final RobotInfo nearestDropOff;
                 if (nearestRefinery == null) {
                     nearestDropOff = nearestHq;
                 } else if (nearestHq == null) {
@@ -183,7 +179,7 @@ public strictfp class RobotPlayer {
                     }
                 }
 
-                MapLocation depositLoc = null;
+                final MapLocation depositLoc;
                 if (nearestDropOff != null) {
                     if (nearestDropOff.location.distanceSquaredTo(rc.getLocation()) <= ADJACENT_DIST_SQ) {
                         rc.depositSoup(rc.getLocation().directionTo(nearestDropOff.location), rc.getSoupCarrying());
@@ -203,16 +199,16 @@ public strictfp class RobotPlayer {
     }
 
     private static BehaviorResult tryClusteredBuild() throws GameActionException {
-        RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         // 1. find nearby HQ
-        RobotInfo nearestHq = findNearestByType(nearby, RobotType.HQ);
+        final RobotInfo nearestHq = findNearestByType(nearby, RobotType.HQ);
         // no HQ nearby? it must not be important
         if (nearestHq == null || nearestHq.location.distanceSquaredTo(rc.getLocation()) >= 25) {
             return BehaviorResult.FAIL;
         }
 
         // 2. find nearby design school
-        RobotInfo nearestDesign = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
+        final RobotInfo nearestDesign = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
 
         if (nearestDesign == null) {
             return pathToAndDoClusteredBuild(nearestHq.location, RobotType.DESIGN_SCHOOL);
@@ -250,7 +246,7 @@ public strictfp class RobotPlayer {
         return BehaviorResult.FAIL;
     }
 
-    private static BehaviorResult pathToAndDoClusteredBuild(MapLocation hqLocation, RobotType type) throws GameActionException {
+    private static BehaviorResult pathToAndDoClusteredBuild(final MapLocation hqLocation, final RobotType type) throws GameActionException {
         if (rc.getCooldownTurns() >= 1.f) {
             return BehaviorResult.POSTPONED;
         }
@@ -258,7 +254,7 @@ public strictfp class RobotPlayer {
         // 1. pick the closest location
         MapLocation closestLoc = null;
         int closestDistSq = 100;
-        Direction[] candidateDirs;
+        final Direction[] candidateDirs;
         if (type == RobotType.DESIGN_SCHOOL) {
             candidateDirs = new Direction[]{WEST}; //cardinalDirections;
         } else if (type == RobotType.VAPORATOR) {
@@ -267,10 +263,10 @@ public strictfp class RobotPlayer {
             candidateDirs = new Direction[]{NORTHWEST}; //diagonalDirections;
         }
 
-        for (Direction d : candidateDirs) {
-            MapLocation loc = hqLocation.add(d);
+        for (final Direction d : candidateDirs) {
+            final MapLocation loc = hqLocation.add(d);
             if (!rc.isLocationOccupied(loc)) {
-                int distSq = rc.getLocation().distanceSquaredTo(loc);
+                final int distSq = rc.getLocation().distanceSquaredTo(loc);
                 if (distSq < closestDistSq) {
                     closestDistSq = distSq;
                     closestLoc = loc;
@@ -294,7 +290,7 @@ public strictfp class RobotPlayer {
         if (closestLoc.isAdjacentTo(rc.getLocation())) {
             // no need to check canBuildRobot. we've already checked the other preconditions.
             if (soup >= type.cost) {
-                Direction dir = rc.getLocation().directionTo(closestLoc);
+                final Direction dir = rc.getLocation().directionTo(closestLoc);
                 rc.buildRobot(type, dir);
                 return BehaviorResult.SUCCESS;
             } else {
@@ -311,7 +307,7 @@ public strictfp class RobotPlayer {
             return BehaviorResult.FAIL;
         }
 
-        Direction targetDir = rc.getLocation().directionTo(target);
+        final Direction targetDir = rc.getLocation().directionTo(target);
         for (int offset = 0; offset <= 4; ++offset) {
             final Direction dir = Direction.values()[(targetDir.ordinal() + offset) % 8];
             // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
@@ -338,7 +334,7 @@ public strictfp class RobotPlayer {
     }
 
     private static RobotInfo findNearestByType(final RobotInfo[] nearby, final RobotType type) {
-        for (RobotInfo r : nearby) {
+        for (final RobotInfo r : nearby) {
             if (r.type == type) {
                 return r;
             }
@@ -348,14 +344,14 @@ public strictfp class RobotPlayer {
 
     private static RobotInfo[] findAllByType(final RobotInfo[] nearby, final RobotType type) {
         int count = 0;
-        for (RobotInfo r : nearby) {
+        for (final RobotInfo r : nearby) {
             if (r.type == type) {
                 ++count;
             }
         }
-        RobotInfo[] matches = new RobotInfo[count];
+        final RobotInfo[] matches = new RobotInfo[count];
         int idx = 0;
-        for (RobotInfo r : nearby) {
+        for (final RobotInfo r : nearby) {
             if (r.type == type) {
                 matches[idx++] = r;
             }
@@ -372,8 +368,8 @@ public strictfp class RobotPlayer {
     }
 
     static void runDesignSchool() throws GameActionException {
-        RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
-        RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
+        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
         if (landscapers.length < 8) {
             trySpawn(RobotType.LANDSCAPER);
         }
@@ -384,9 +380,9 @@ public strictfp class RobotPlayer {
     }
 
     static void runLandscaper() throws GameActionException {
-        RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         if (cachedHqLocation == null) {
-            RobotInfo hq = findNearestByType(nearby, RobotType.HQ);
+            final RobotInfo hq = findNearestByType(nearby, RobotType.HQ);
             if (hq == null) {
                 // can't do much else
                 randomlyExplore();
@@ -402,12 +398,12 @@ public strictfp class RobotPlayer {
 
         // want to form a wall of size 5x5, with evenly spaced landscapers
         // fill from one edge to the other
-        int[][] offsets = {{2, 0}, {2, 2}, {2, -2}, {0, 2}, {0, -2}, {-2, 2}, {-2, -2}, {-2, 0}};
-        int sensorRange = getCurrentSensorRadiusSquared();
+        final int[][] offsets = {{2, 0}, {2, 2}, {2, -2}, {0, 2}, {0, -2}, {-2, 2}, {-2, -2}, {-2, 0}};
+        final int sensorRange = rc.getCurrentSensorRadiusSquared();
         MapLocation last_unoccupied_location = cachedHqLocation.translate(offsets[offsets.length - 1][0],
                 offsets[offsets.length - 1][1]);
-        for (int[] offset : offsets) {
-            MapLocation target = cachedHqLocation.translate(offset[0], offset[1]);
+        for (final int[] offset : offsets) {
+            final MapLocation target = cachedHqLocation.translate(offset[0], offset[1]);
             if (target.distanceSquaredTo(rc.getLocation()) <= sensorRange) {
                 if (!rc.isLocationOccupied(target) || rc.getLocation().equals(target)) {
                     last_unoccupied_location = target;
@@ -420,18 +416,18 @@ public strictfp class RobotPlayer {
             if (rc.getDirtCarrying() > 0) {
                 Direction lowestWall = null;
                 int minWallHeight = 0;
-                for (Direction d : allDirections()) {
-                    MapLocation tile = rc.getLocation().add(d);
-                    int dx = Math.abs(tile.x - cachedHqLocation.x);
-                    int dy = Math.abs(tile.y - cachedHqLocation.y);
-                    boolean isWall = (dx == 2 || dy == 2) && (dx <= 2 && dy <= 2);
+                for (final Direction d : allDirections()) {
+                    final MapLocation tile = rc.getLocation().add(d);
+                    final int dx = Math.abs(tile.x - cachedHqLocation.x);
+                    final int dy = Math.abs(tile.y - cachedHqLocation.y);
+                    final boolean isWall = (dx == 2 || dy == 2) && (dx <= 2 && dy <= 2);
                     if (!isWall) {
                         continue;
                     }
                     if (!rc.canDepositDirt(d)) {
                         continue;
                     }
-                    int elevation = rc.senseElevation(tile);
+                    final int elevation = rc.senseElevation(tile);
                     if (lowestWall == null || elevation < minWallHeight) {
                         minWallHeight = elevation;
                         lowestWall = d;
@@ -443,15 +439,15 @@ public strictfp class RobotPlayer {
             } else {
                 Direction highestTrough = null;
                 int maxTroughHeight = 0;
-                for (Direction d : allDirections()) {
-                    MapLocation tile = rc.getLocation().add(d);
-                    int dx = Math.abs(tile.x - cachedHqLocation.x);
-                    int dy = Math.abs(tile.y - cachedHqLocation.y);
-                    boolean isTrough = (dx >= 3 || dy >= 3);
+                for (final Direction d : allDirections()) {
+                    final MapLocation tile = rc.getLocation().add(d);
+                    final int dx = Math.abs(tile.x - cachedHqLocation.x);
+                    final int dy = Math.abs(tile.y - cachedHqLocation.y);
+                    final boolean isTrough = (dx >= 3 || dy >= 3);
                     if (!isTrough) {
                         continue;
                     }
-                    int elevation = rc.senseElevation(tile);
+                    final int elevation = rc.senseElevation(tile);
                     if (!rc.canDigDirt(d)) {
                         continue;
                     }
@@ -478,8 +474,8 @@ public strictfp class RobotPlayer {
 
     }
 
-    static BehaviorResult trySpawn(RobotType type) throws GameActionException {
-        for (Direction d : octalDirections) {
+    static BehaviorResult trySpawn(final RobotType type) throws GameActionException {
+        for (final Direction d : octalDirections) {
             if (rc.canBuildRobot(type, d)) {
                 rc.buildRobot(type, d);
                 return BehaviorResult.SUCCESS;
