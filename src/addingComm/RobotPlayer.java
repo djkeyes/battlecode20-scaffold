@@ -176,6 +176,7 @@ public strictfp class RobotPlayer
                 int soup = rc.senseSoup(loc);
                 if (soup > 0) {
                     targetLoc = loc;
+                    Com.broadcastLocs(CommSys.NEWS_SOUP_FOUND,loc);
                     break;
                 }
             }

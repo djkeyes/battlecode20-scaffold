@@ -34,6 +34,7 @@ public class CommSys
     public static final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;   
     public static final int UNIMPORTANT_TRANSC_COST    =   1;
     public static final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
+    // ENCODE_EVEN->DECODE_EVEN ECONDE_ODD->DECODE_ODD
     public static final Boolean DECODE_EVEN            =   true;
     public static final Boolean DECODE_ODD             =   !DECODE_EVEN;
     public static final Boolean ENCODE_ODD             =   DECODE_ODD;
@@ -155,6 +156,7 @@ public class CommSys
             if(Magazine.length!=0)
             {
                 Key=Magazine[0].getMessage();       // Save as the key then
+                System.out.println("Key found");
                 // Also, take off the first transaction so that ReadMessage won't read this again
                 // HOW???
                 // Instead of removing the message, let makes the first message become invalid
@@ -230,6 +232,7 @@ public class CommSys
     {
         try
         {
+            message=EncodeMessage(message);
             if(robot.canSubmitTransaction(message,bid))
             {
                 robot.submitTransaction(message,bid);
@@ -273,7 +276,7 @@ public class CommSys
             {
                 if((message[i]^PLAN_1_CHECK_SUM_MASK_EVEN)==0)
                 {
-                    tmp[i]=Decode(message[i],DECODE_ODD);
+                    tmp[i]=Decode(message[i],DECODE_EVEN);
                 }
                 else
                 {
@@ -284,7 +287,7 @@ public class CommSys
             {
                 if((message[i]^PLAN_1_CHECK_SUM_MASK_ODD)==0)
                 {
-                    tmp[i]=Decode(message[i],DECODE_EVEN);                    
+                    tmp[i]=Decode(message[i],DECODE_ODD);                    
                 }
                 else
                 {
