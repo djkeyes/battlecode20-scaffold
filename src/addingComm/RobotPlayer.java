@@ -46,9 +46,11 @@ public strictfp class RobotPlayer
                 switch (rc.getType()) {
                     case HQ:
                         runHQ();
+                        // TestFunctions.testBlockChain(rc);
                         break;
                     case MINER:
-                        runMiner();
+                        // runMiner();
+                        runMiner1();
                         break;
                     case REFINERY:
                         runRefinery();
@@ -88,7 +90,7 @@ public strictfp class RobotPlayer
         RobotInfo[] miners = findAllByType(nearby, RobotType.MINER);
         RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
         RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
-        if (miners_built == 0 || (miners_built < 2 && design != null) || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
+        if ((rc.getRoundNum()<15 && miners_built <3)  || (miners_built < 2 && design != null) || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
             BehaviorResult result = trySpawn(RobotType.MINER);
             if (result != BehaviorResult.FAIL) {
                 if (result == BehaviorResult.SUCCESS) {
@@ -97,6 +99,32 @@ public strictfp class RobotPlayer
                 return;
             }
         }
+    }
+    private static void lookAround()
+    {
+        RobotInfo[] around=rc.senseNearbyRobots(-1);
+        for(RobotInfo rb:around)
+        {
+            // If it is building, broadast
+            if(rb.getType().isBuilding())
+            {
+                Com.broadcastUnitLocs(rb);
+            }
+        }
+
+    }
+
+    static void runMiner1() throws GameActionException
+    {
+        // Identify things around
+        lookAround();
+        //
+        if (tryMining() != BehaviorResult.FAIL) {
+            return;
+        }
+
+
+        randomlyExplore();
     }
 
     static void runMiner() throws GameActionException {

@@ -31,44 +31,59 @@ public class CommSys
     *       Plan 2 is more economical in term of computational power
     */
 
-    public final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;   
-    public final int UNIMPORTANT_TRANSC_COST    =   1;
-    public final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
-    public final Boolean DECODE_EVEN            =   true;
-    public final Boolean DECODE_ODD             =   !DECODE_EVEN;
-    public final Boolean ENCODE_ODD             =   DECODE_ODD;
-    public final Boolean ENCODE_EVEN             =  DECODE_EVEN;
+    public static final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;   
+    public static final int UNIMPORTANT_TRANSC_COST    =   1;
+    public static final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
+    public static final Boolean DECODE_EVEN            =   true;
+    public static final Boolean DECODE_ODD             =   !DECODE_EVEN;
+    public static final Boolean ENCODE_ODD             =   DECODE_ODD;
+    public static final Boolean ENCODE_EVEN             =  DECODE_EVEN;
 
     // Checksum mask
-    public final int PLAN_1_CHECK_SUM_MASK_ODD  =   0b10101010101010101010101010101010; // Odd bit for checksum
-    public final int PLAN_1_CHECK_SUM_MASK_EVEN =   0b01010101010101010101010101010101; // Even for checksum
-    public final int PLAN_2_CHECK_SUM_MASK_ODD  =   0b11111111111111110000000000000000; // high word for checksum
-    public final int PLAN_2_CHECK_SUM_MASK_EVEN =   0b00000000000000001111111111111111; // low word for checksum
+    public static final int PLAN_1_CHECK_SUM_MASK_ODD  =   0b10101010101010101010101010101010; // Odd bit for checksum
+    public static final int PLAN_1_CHECK_SUM_MASK_EVEN =   0b01010101010101010101010101010101; // Even for checksum
+    public static final int PLAN_2_CHECK_SUM_MASK_ODD  =   0b11111111111111110000000000000000; // high word for checksum
+    public static final int PLAN_2_CHECK_SUM_MASK_EVEN =   0b00000000000000001111111111111111; // low word for checksum
     // Maplocation Masks
-    public final int MAP_DECODE_X_MASK          =   0xFF00;
-    public final int MAP_DECODE_Y_MASK          =   0x00FF;
+    public static final int MAP_DECODE_X_MASK          =   0xFF00;
+    public static final int MAP_DECODE_Y_MASK          =   0x00FF;
     // Notice, to get the value of the message, the mask is the complement of the the corresponding checksum
-
+    public static final int NO_USE_SLOT                =   0xFF;
     // News list
     // For these news below, 
     // First message is the command code, second message 
     // after decoded will has X coordinate in high byte,
     // Y coordinate in low byte
-    public final int NEWS_ENEMY_HQ_FOUND        =   1;   
-    public final int NEWS_REFINERY_FOUND        =   2;
-    public final int NEWS_SOUP_FOUND            =   3;
-    public final int NEWS_SOUP_IS_OUT           =   4;
+    public static final int NEWS_ENEMY_HQ_FOUND        =   1;   
+    public static final int NEWS_REFINERY_BUILT        =   2;
+    public static final int NEWS_DESIGN_SCHOOL_BUILT   =   3;
+    public static final int NEWS_SOUP_FOUND            =   4;
+    public static final int NEWS_SOUP_IS_OUT           =   5;
+    // When communication start
+    // This is to make sure that we can have different key for different opponents
+    // The getID() only return pseudo random number so the id a robot received is deterministic
+    // base on their spawn order, so if we just use getID(), the first robot Id will alwasy be the same
+    // and the same key will be obtained everytime
+    // however, different oppent have different strategy and different rate of spawning robots
+    // Thus let comm start on later round will result in a random id for our first robot
+    // It is not truly random, but because of the different in spawning strategy
+    // when we will likely get diffrent key from opponent to opponent 
+    public static final int COMM_START_ROUND            =   20;
+    // Start communication when population is large enough
+    // Again, this is also to add to the randomness of the key
+//    public static final int COMM_START_POPULATION       =   4;
 
-
+    public static int[] Key;
     private int LastReadRound;         // Index of last read transaction in the block chain 
     private int CurrentRound;
-    private int[] Key;
     private Transaction[] Magazine;                 // Block added in the latest round
     private int[] Mes;                              // Use to store decoded message
     private RobotController robot;
     private DLinkedList<MapLocation> RefineryLocs;
     private DLinkedList<MapLocation> SoupLocs;
     private MapLocation Enemy_HQ;
+
+    public static int DECENT_TRANSACTION_COST  = IMPORTANT_TRANSC_COST;     // Should implement a mechanism to find out the minimal cost for the message to be posted
 
     public CommSys(RobotController robot)
     {
@@ -97,7 +112,7 @@ public class CommSys
     // However, once all the blocks are read, every time it only read 1 last block
     private void CatchUpPress()
     {
-        if(CurrentRound<2)
+        if(CurrentRound<COMM_START_ROUND)
         {
             return;
         }
@@ -110,6 +125,7 @@ public class CommSys
             }
             catch(GameActionException e)
             {
+                System.out.println("Cannot get block for round "+LastReadRound);
                 // What can go wrong with this?
                 // System.out.println(e.getMessage());
             }
@@ -165,10 +181,90 @@ public class CommSys
         }
     }
 
+    // messeageCode is one of the constant used for indicating the identity
+    // Ex: for enemy's HQ, NEWS_ENEMY_HQ_FOUND
+    public void broadcastLocs(int messageCode, MapLocation loc)
+    {
+        broadcastLocs(messageCode,loc.x,loc.y);
+    }
+
+    public void broadcastLocs(int messageCode,int x,int y)
+    {
+        int[] news=new int[]{messageCode,EncodeMapLocation(x,y)};
+        send(news,DECENT_TRANSACTION_COST);
+    }
+
+    public void broadcastUnitLocs(RobotInfo rb)
+    {
+        // Currently only building Unit is here
+        RobotType unit_Type=rb.getType();
+        if(!rb.getTeam().isPlayer())
+        {
+            // From the enemy
+            switch(unit_Type)
+            {
+                case HQ:
+                    System.out.println("Broadcasting Enemy HQ location");
+                    broadcastLocs(NEWS_ENEMY_HQ_FOUND,rb.getLocation());
+                    break;
+            }
+        }
+        else
+        {
+            switch(unit_Type)
+            {
+                case REFINERY:
+                    System.out.println("Broadcasting newly built Refinery");
+                    broadcastLocs(NEWS_REFINERY_BUILT,rb.getLocation());
+                    break;
+                case DESIGN_SCHOOL:
+                    System.out.println("Broadcasting newly built DESIGN_SCHOOL");
+                    broadcastLocs(NEWS_DESIGN_SCHOOL_BUILT,rb.getLocation());
+                    break;
+            }
+        }
+
+    }
+
+    public boolean send(int[] message,int bid)
+    {
+        try
+        {
+            if(robot.canSubmitTransaction(message,bid))
+            {
+                robot.submitTransaction(message,bid);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(GameActionException e)
+        {
+            System.out.println("Having trouble submitting transaction");
+            return false;
+        }
+    }
+
+    /*
+    *   General checksum
+    *   checksum and decode message
+    *   return the decoded meassge if checksum make
+    *   null or else
+    */
+    public int[] checksumNextract(int[] message)
+    {
+        return checksum1Nextract(message);
+    }
+
     /*
     *   Plan 1 checksum
+    *   checksum and decode message
+    *   return the decoded meassge if checksum make
+    *   null or else
     */
-    private int[] checksum1(int[] message)
+    private int[] checksum1Nextract(int[] message)
     {
         int[] tmp=new int[message.length];
         for(int i=0;i<message.length;i++)
@@ -177,7 +273,7 @@ public class CommSys
             {
                 if((message[i]^PLAN_1_CHECK_SUM_MASK_EVEN)==0)
                 {
-                    tmp[i]=Decode1(message[i],DECODE_ODD);
+                    tmp[i]=Decode(message[i],DECODE_ODD);
                 }
                 else
                 {
@@ -188,7 +284,7 @@ public class CommSys
             {
                 if((message[i]^PLAN_1_CHECK_SUM_MASK_ODD)==0)
                 {
-                    tmp[i]=Decode1(message[i],DECODE_EVEN);                    
+                    tmp[i]=Decode(message[i],DECODE_EVEN);                    
                 }
                 else
                 {
@@ -204,21 +300,35 @@ public class CommSys
     // false otherwise
     private void SendInFirstTrans()
     {
-        int[] randMess = RandomMessage();
-        if(robot.canSubmitTransaction(randMess,UNIMPORTANT_TRANSC_COST))
+
+        if(robot.getType()==RobotType.HQ)
         {
-            try
-            {
-                robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
-            }
-            catch(GameActionException e)
-            {
-                // Do what here?
-            }
+            // Do not let HQ sends in the first transaction
+            // The RandomMessage() utilizes the randomness of robot id
+            // to creaete random message.
+            // id of HQ is either 0 or 1, so...
+            return;
         }
         else
         {
-            // Dont know what to do here
+
+            int[] randMess= RandomMessage();
+
+            if(robot.canSubmitTransaction(randMess,UNIMPORTANT_TRANSC_COST))
+            {
+                try
+                {
+                    robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
+                }
+                catch(GameActionException e)
+                {
+                    // Do what here?
+                }
+            }
+            else
+            {
+                // Dont know what to do here
+            }
         }
     }
  
@@ -240,19 +350,20 @@ public class CommSys
         for(int i=0;i<news.length;i++)
         {
             // If checksum match, add it to the message list
-            tmp=checksum1(news[i].getMessage());
-            // Checksum1 automatically decode the message
+            tmp=checksum1Nextract(news[i].getMessage());
+            // Checksum1Nextract automatically decode the message
             if(tmp!=null)
             {
                 // Save the decoded message
                 message.add(tmp);
             }
+     
         }
         return message;
     }
 
     // extract message from the original  message
-    int Decode1(int orgMess,Boolean odd_mask)
+    static int Decode1(int orgMess,Boolean odd_mask)
     {
         int finalMess=0;
         if(odd_mask==DECODE_ODD)
@@ -269,8 +380,36 @@ public class CommSys
         return finalMess;
     }
 
+    // Encode message ( a sequence of integer)
+    static int[] EncodeMessage(int[] message) throws IllegalStateException
+    {
+        if(Key==null)
+        {   
+            System.out.println("No key, no Encoding!");
+            throw(new IllegalStateException());
+        }
+
+        int[] tmp=new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
+        for(int i=0;i<message.length;i++)
+        {
+            tmp[i]=Encode(message[i],Key[i],(i%2==0?ENCODE_EVEN:ENCODE_ODD));
+        }
+        return tmp;
+    }
+
+    // General interface, change Encode1->Encode2 to use plan 2
+    static int Decode(int orgMess,Boolean odd_mask)
+    {
+        return Decode1(orgMess,odd_mask);
+    }
+
+    static int Encode(int orgMess,int CheckSum,Boolean odd_mask)
+    {
+        return Encode1(orgMess,CheckSum,odd_mask);
+    }
+
     // Encode with plan 1 message from the original  message
-    int Encode1(int orgMess,int CheckSum,Boolean odd_mask)
+    static int Encode1(int orgMess,int CheckSum,Boolean odd_mask)
     {
         int finalMess=0;
         int shift=0;
@@ -294,12 +433,12 @@ public class CommSys
         return finalMess;
     }
 
-    int EncodeLocation(int X,int Y)
+    public static int EncodeMapLocation(int X,int Y)
     {
         return (X<<8)|Y;
     }
 
-    private MapLocation DecodeMapLocation(int rawMes)
+    public static MapLocation DecodeMapLocation(int rawMes)
     {
         return new MapLocation(((rawMes&MAP_DECODE_X_MASK)>>8),rawMes&MAP_DECODE_Y_MASK);
     }
@@ -323,6 +462,7 @@ public class CommSys
     {
         MapLocation tmp;
         int[] message;
+        // messages in here are already decoded
         for(int i=0;i<orderStack.size();i++)
         {
             message=orderStack.get(i);
@@ -336,10 +476,12 @@ public class CommSys
                     else
                     {
                         Enemy_HQ=DecodeMapLocation(message[1]);
+                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
                     }
                     break;
-                case NEWS_REFINERY_FOUND:
+                case NEWS_REFINERY_BUILT:
                     tmp=DecodeMapLocation(message[1]);
+                    System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
                     if(isNew(tmp,RefineryLocs))
                     {
                         RefineryLocs.add(tmp);
@@ -347,6 +489,7 @@ public class CommSys
                     break;
                 case NEWS_SOUP_FOUND:
                     tmp=DecodeMapLocation(message[1]);
+                    System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
                     if(isNew(tmp,SoupLocs))
                     {
                         SoupLocs.add(tmp);
