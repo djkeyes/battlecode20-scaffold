@@ -4,6 +4,8 @@ import battlecode.world.MapBuilder;
 
 import java.io.IOException;
 
+import static maps.MapGenUtils.addRectangleSoup;
+
 /**
  * Generate a map.
  */
@@ -89,11 +91,4 @@ public class RandomSoup1 {
 
     }
 
-    public static void addRectangleSoup(MapBuilder mapBuilder, int xl, int yb, int xr, int yt, int v) {
-        for (int i = xl; i < xr+1; i++) {
-            for (int j = yb; j < yt+1; j++) {
-                mapBuilder.setSymmetricSoup(i, j, v);
-            }
-        }
-    }
 }
