@@ -5,47 +5,26 @@ import subprocess
 
 import numpy as np
 
-package_to_test = 'combinedstrategies'
-params_to_test = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+package_to_test = 'landscaperwaller'
+params_to_test = ['']
 
 src_dir = './src/'
 # benchmarks, in the format (package name, commit hash, debug params)
 # (use a singleton list if no params to try)
 benchmarks = [
-    ('combinedstrategies', 'b7755d7012b7d44a1aa28d0967bf8eb6821a0b88', ['']),
-    ('turtlebot', '16a6621f6df0e2c25bfcb1c572d95efe15d40916', ['']),
-    ('noop', '16a6621f6df0e2c25bfcb1c572d95efe15d40916', [''])
+    ('landscaperwaller', 'ec78354b0c75278446a2b6811ac993905b376b31', ['']),
+    ('examplefuncsplayer', 'ec78354b0c75278446a2b6811ac993905b376b31', ['']),
+    ('noop', 'ec78354b0c75278446a2b6811ac993905b376b31', [''])
 ]
 
 maps = [
-    '1337Tree',
-    'Blitzkrieg',
-    'BugTrap',
-    'Captive',
-    'Chess',
-    'Clusters',
-    'Cramped',
-    'Croquembouche',
-    'DarkSide',
-    'Defenseless',
-    'DigMeOut',
-    'Fancy',
-    'GreatDekuTree',
-    'HedgeMaze',
-    'HouseDivided',
-    'Interference',
-    'Levels',
-    'Misaligned',
-    'ModernArt',
-    'OMGTree',
-    'Ocean',
-    'Oxygen',
-    'Slant',
-    'Snowflake',
-    'Sprinkles',
-    'TheOtherSide',
-    'Turtle',
-    'Whirligig',
+    'ALandDivided',
+    'CentralLake',
+    'CentralSoup',
+    'FourLakeLand',
+    'SoupOnTheSide',
+    'TwoForOneAndTwoForAll',
+    'WaterBot'
 ]
 
 benchmark_prefix = 'benchmark'
@@ -84,6 +63,7 @@ for benchmark in benchmarks:
         new_filename = generated_package_path + decoded_name
         pipe = subprocess.Popen(['git', 'cat-file', '-p',  commit_hash + ':' + old_filename], stdout=subprocess.PIPE)
         with open(new_filename, 'w') as f:
+            # TODO(daniel): this could probably be done with shutil, which would help to make this script run on windows
             command = ['sed', '-r', 's/package ' + orig_package + '/package ' + generated_package + '/']
             sed = subprocess.Popen(command, stdin=pipe.stdout, stdout=f)
             pipe.wait()
@@ -104,7 +84,6 @@ else:
 command = [gradle_command, 'build']
 subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-# TODO: use params
 num_wins = np.zeros([len(flattened_benchmarks), len(maps), len(params_to_test)])
 for i, (generated_package, generated_param) in enumerate(flattened_benchmarks):
     # run the match!
