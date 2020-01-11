@@ -30,11 +30,14 @@ public final strictfp class RobotPlayer {
 
         turnCount = 0;
 
+        final boolean enablePrinting = System.getProperty("bc.testing.local-testing").equals("true");
+
         savedSpawnLoc = rc.getLocation();
 
         //noinspection InfiniteLoopStatement
         while (true) {
             turnCount += 1;
+            final int startRoundNum = rc.getRoundNum();
             try {
                 switch (rc.getType()) {
                     case HQ:
@@ -67,10 +70,15 @@ public final strictfp class RobotPlayer {
                 }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+                final int endRoundNum = rc.getRoundNum();
+                if (enablePrinting && endRoundNum != startRoundNum) {
+                    System.out.println("Over bytecode limit!");
+                    System.out.println("bytecodes used: " + Clock.getBytecodeNum());
+                }
                 Clock.yield();
 
             } catch (final Exception e) {
-                if (System.getProperty("bc.testing.local-testing").equals("true")) {
+                if (enablePrinting) {
                     System.out.println(rc.getType() + " Exception");
                     e.printStackTrace();
                 }
