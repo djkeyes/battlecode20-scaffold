@@ -36,24 +36,47 @@ public class CommSys
     public final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
     public final Boolean DECODE_EVEN            =   true;
     public final Boolean DECODE_ODD             =   !DECODE_EVEN;
+    public final Boolean ENCODE_ODD             =   DECODE_ODD;
+    public final Boolean ENCODE_EVEN             =  DECODE_EVEN;
+
     // Checksum mask
     public final int PLAN_1_CHECK_SUM_MASK_ODD  =   0b10101010101010101010101010101010; // Odd bit for checksum
     public final int PLAN_1_CHECK_SUM_MASK_EVEN =   0b01010101010101010101010101010101; // Even for checksum
     public final int PLAN_2_CHECK_SUM_MASK_ODD  =   0b11111111111111110000000000000000; // high word for checksum
     public final int PLAN_2_CHECK_SUM_MASK_EVEN =   0b00000000000000001111111111111111; // low word for checksum
-        // Notice, to get the value of the message, the mask is the complement of the the corresponding checksum
+    // Maplocation Masks
+    public final int MAP_DECODE_X_MASK          =   0xFF00;
+    public final int MAP_DECODE_Y_MASK          =   0x00FF;
+    // Notice, to get the value of the message, the mask is the complement of the the corresponding checksum
+
+    // News list
+    // For these news below, 
+    // First message is the command code, second message 
+    // after decoded will has X coordinate in high byte,
+    // Y coordinate in low byte
+    public final int NEWS_ENEMY_HQ_FOUND        =   1;   
+    public final int NEWS_REFINERY_FOUND        =   2;
+    public final int NEWS_SOUP_FOUND            =   3;
+    public final int NEWS_SOUP_IS_OUT           =   4;
+
 
     private int LastReadRound;         // Index of last read transaction in the block chain 
     private int CurrentRound;
     private int[] Key;
-    Transaction[] Magazine;                 // Block added in the latest round
-    int[] Mes;                              // Use to store decoded message
+    private Transaction[] Magazine;                 // Block added in the latest round
+    private int[] Mes;                              // Use to store decoded message
     private RobotController robot;
-    
+    private DLinkedList<MapLocation> RefineryLocs;
+    private DLinkedList<MapLocation> SoupLocs;
+    private MapLocation Enemy_HQ;
+
     public CommSys(RobotController robot)
     {
         Key=null;
+        Enemy_HQ=null;
         this.robot=robot;
+        RefineryLocs=new DLinkedList();
+        SoupLocs=new DLinkedList();
         LastReadRound=1;
         CurrentRound=robot.getRoundNum();
     }
@@ -80,7 +103,7 @@ public class CommSys
         }
         while(LastReadRound<CurrentRound)
         {
-            System.out.println(LastReadRound);
+            // System.out.println(LastReadRound);
             try
             {
                 Magazine=robot.getBlock(LastReadRound);       // Get the transactions
@@ -246,8 +269,96 @@ public class CommSys
         return finalMess;
     }
 
+    // Encode with plan 1 message from the original  message
+    int Encode1(int orgMess,int CheckSum,Boolean odd_mask)
+    {
+        int finalMess=0;
+        int shift=0;
+        if(odd_mask==ENCODE_EVEN)
+        {
+            finalMess|=(CheckSumc&PLAN_1_CHECK_SUM_MASK_ODD);
+            shift=0;
+        }
+        else
+        {
+            finalMess|=(CheckSumc&PLAN_1_CHECK_SUM_MASK_EVEN);            
+            shift=1;
+        }
+        for(int i=0;i<16;i++)
+        {
+            if(orgMess&(1<<i))
+            {
+                finalMess|=(1<<(2*i+shift))
+            }
+        }
+        return finalMess;
+    }
+
+    int EncodeLocation(int X,int Y)
+    {
+        return (X<<8)|Y;
+    }
+
+    private MapLocation DecodeMapLocation(int rawMes)
+    {
+        return new MapLocation(((rawMes&MAP_DECODE_X_MASK)>>8),rawMes&MAP_DECODE_Y_MASK);
+    }
+
+    private <T> boolean isNew(T vl, DLinkedList<T> list)
+    {
+        DLinkedList<T>.Iterator it=list.getIterator();
+        while(it.hasNext())
+        {
+            if(vl.equals(it.getNext()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    // Input in a list of decoded messages
     private void ReadNExecute(ArrayList<int[]> orderStack)
     {
-
+        MapLocation tmp;
+        int[] message;
+        for(int i=0;i<orderStack.size();i++)
+        {
+            message=orderStack.get(i);
+            switch(message[0])
+            {
+                case NEWS_ENEMY_HQ_FOUND:
+                    if(Enemy_HQ!=null)
+                    {
+                        System.out.println("Second Enemy_HQ found, something is wrong");
+                    }
+                    else
+                    {
+                        Enemy_HQ=DecodeMapLocation(message[1]);
+                    }
+                    break;
+                case NEWS_REFINERY_FOUND:
+                    tmp=DecodeMapLocation(message[1]);
+                    if(isNew(tmp,RefineryLocs))
+                    {
+                        RefineryLocs.add(tmp);
+                    }
+                    break;
+                case NEWS_SOUP_FOUND:
+                    tmp=DecodeMapLocation(message[1]);
+                    if(isNew(tmp,SoupLocs))
+                    {
+                        SoupLocs.add(tmp);
+                    }
+                    break;
+                case NEWS_SOUP_IS_OUT:
+                    tmp=DecodeMapLocation(message[1]);
+                    SoupLocs.findNremove(tmp);
+                    break;
+                default:
+                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
+            }
+        }
     }
 }
