@@ -69,6 +69,18 @@ if (!project.hasProperty("classLocation")) {
 if (!project.hasProperty("replay")) {
     ext.replay = 'matches/' + project.property('teamA') + '-vs-' + project.property('teamB') + '-on-' + project.property('maps') + '.bc20'
 }
+if (!project.hasProperty("paramA")) {
+    ext.paramA = ""
+}
+if (!project.hasProperty("paramB")) {
+    ext.paramB = ""
+}
+if (!project.hasProperty("seedA")) {
+    ext.seedA = ""
+}
+if (!project.hasProperty("seedB")) {
+    ext.seedB = ""
+}
 
 // Mark the client as a special dependency, so that we can handle it separately.
 configurations {
