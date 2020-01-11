@@ -7,18 +7,35 @@ import java.util.*;
 import static bytecodes.Assert.assertEquals;
 
 /**
- * Daniel:
+ * This class tests the bytecode usage of various functions and language constructs. It does it by creating a
+ * RobotPlayer, and then literally executing functions and timing their runtime. If you want to run these tests, you
+ * can do it with, for example, the following command (use gradle on windows):
+ *
+ *      ./gradlew run -PteamA=bytecodes -PteamB=noop -Pmaps=WaterBot
+ *
+ * If you would like to test something yourself, have a look at the file. Most of the functions in this file are
+ * structured in the following form:
+ *
+ *         before = Clock.getBytecodeNum();
+ *         <YOUR FUNCTION>
+ *         after = Clock.getBytecodeNum();
+ *         expected = <YOUR BYTECODES>;
+ *         actual = after - before;
+ *         assertEquals(expected, actual);
+ *
+ * Just insert the code you would like to test in <YOUR FUNCTION>, and insert a dummy value like 123 in <YOUR
+ * BYTECODES>. Then run this player. Your code will fail (unless you guessed correctly, and your function uses
+ * exactly 123 bytecodes). When it fails, the logs will show the true bytecode usage. You can copy and paste those
+ * into the code to make the assertion succeed.
+ *
+ * TODO(daniel):
  * It might be nice to have some kind of automated test / generator for this information. I'm not sure how to inject
  * the code profiler into junit tests or how to mock the various battlecode classes, so instead this is a
  * full-fledged player.
- * <p>
- * You can run it with, for example:
- * <p>
- * gradle run -PteamA=bytecodes -PteamB=noop -Pmaps=shrine
  */
-public strictfp class RobotPlayer {
+public final strictfp class RobotPlayer {
 
-    public static void runTests(RobotController rc) {
+    public static void runTests(final RobotController rc) {
         testSimpleAssertion();
         timeNoop();
         timeDeclarePrimitive();
@@ -62,10 +79,10 @@ public strictfp class RobotPlayer {
             runTests(rc);
 
             System.out.println("All tests passed!");
-        } catch (AssertionError e1) {
+        } catch (final AssertionError e1) {
             System.out.println("Test(s) failed!");
             e1.printStackTrace();
-        } catch (Exception e2) {
+        } catch (final Exception e2) {
             System.out.println("Caught unknown exception!");
             e2.printStackTrace();
         }
@@ -897,16 +914,9 @@ public strictfp class RobotPlayer {
         assertEquals(expected, actual);
 
         before = Clock.getBytecodeNum();
-        rc.canSenseRadius(4);
+        rc.canSenseRadiusSquared(4);
         after = Clock.getBytecodeNum();
         expected = 9;
-        actual = after - before;
-        assertEquals(expected, actual);
-
-        before = Clock.getBytecodeNum();
-        rc.getControlBits();
-        after = Clock.getBytecodeNum();
-        expected = 3;
         actual = after - before;
         assertEquals(expected, actual);
 
@@ -918,14 +928,7 @@ public strictfp class RobotPlayer {
         assertEquals(expected, actual);
 
         before = Clock.getBytecodeNum();
-        rc.senseNearbyBullets();
-        after = Clock.getBytecodeNum();
-        expected = 53;
-        actual = after - before;
-        assertEquals(expected, actual);
-
-        before = Clock.getBytecodeNum();
-        rc.canMove(Direction.getNorth());
+        rc.canMove(Direction.NORTH);
         after = Clock.getBytecodeNum();
         expected = 14;
         actual = after - before;
@@ -1092,7 +1095,7 @@ public strictfp class RobotPlayer {
         actual = after - before;
         assertEquals(expected, actual);
 
-        RobotType z = RobotType.SCOUT;
+        RobotType z = RobotType.DELIVERY_DRONE;
         before = Clock.getBytecodeNum();
         switch (z) {
             default:
