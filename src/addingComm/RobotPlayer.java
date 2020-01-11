@@ -1,10 +1,13 @@
 package addingComm;
 
+import java.util.*;
+
 import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
 
-public strictfp class RobotPlayer {
+public strictfp class RobotPlayer 
+{
 
     static final Direction[] cardinalDirections = Direction.cardinalDirections();
     static final Direction[] octalDirections = {NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST};
@@ -20,6 +23,7 @@ public strictfp class RobotPlayer {
     private static int randomExplorationDestinationStartTurn = 0;
     private static MapLocation cachedSoupLoc = null;
     private static int miners_built = 0;
+    private static CommSys Com;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -28,12 +32,15 @@ public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         RobotPlayer.rc = rc;
-
+        Com=new CommSys(rc);
         turnCount = 0;
 
         savedSpawnLoc = rc.getLocation();
 
         while (true) {
+            // Read the new every round
+            Com.ReadNews();
+            // Increase counter
             turnCount += 1;
             try {
                 switch (rc.getType()) {
@@ -498,7 +505,6 @@ public strictfp class RobotPlayer {
         // canceled
         POSTPONED
     }
-
 }
 
 class CommSys
@@ -529,6 +535,8 @@ class CommSys
     public final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;   
     public final int UNIMPORTANT_TRANSC_COST    =   1;
     public final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
+    public final Boolean DECODE_EVEN            =   true;
+    public final Boolean DECODE_ODD             =   !DECODE_EVEN;
     // Checksum mask
     public final int PLAN_1_CHECK_SUM_MASK_ODD  =   0b10101010101010101010101010101010; // Odd bit for checksum
     public final int PLAN_1_CHECK_SUM_MASK_EVEN =   0b01010101010101010101010101010101; // Even for checksum
@@ -542,10 +550,7 @@ class CommSys
     Transaction[] Magazine;                 // Block added in the latest round
     int[] Mes;                              // Use to store decoded message
     private RobotController robot;
-    class News()
-    {
-
-    }
+    
     public CommSys(RobotController robot)
     {
         Key=null;
@@ -559,6 +564,7 @@ class CommSys
     *   This need to be called by the bot every round before they do anything
     */
     public void ReadNews()
+    {
         CurrentRound=robot.getRoundNum();
         CatchUpPress();
     }
@@ -569,9 +575,16 @@ class CommSys
     // However, once all the blocks are read, every time it only read 1 last block
     private void CatchUpPress()
     {
-        while(true)
+        while(LastReadRound!=CurrentRound-1)
         {
-            Magazine=getBlock(LastReadRound);       // Get the transactions
+            try
+            {
+                Magazine=robot.getBlock(LastReadRound);       // Get the transactions
+            }
+            catch(GameActionException e)
+            {
+                // What can go wrong with this?
+            }
             // lastReadRound should always be the last round, otherwise, catch up
             if(isKeyAvailable())
             {
@@ -579,10 +592,6 @@ class CommSys
                 ReadNExecute(FilterMessage(Magazine));
             }
             // Out when we read the last round
-            if(LastReadRound==CurrentRound-1)
-            {
-                break;
-            }
         }
     }
 
@@ -600,7 +609,7 @@ class CommSys
         else
         {
             // There is an available block here
-            if(Magazine.length()!=0)
+            if(Magazine.length!=0)
             {
                 Key=Magazine[0].getMessage();       // Save as the key then
                 // Also, take off the first transaction so that ReadMessage won't read this again
@@ -635,7 +644,33 @@ class CommSys
     */
     private int[] checksum1(int[] message)
     {
-
+        int[] tmp=new int[message.length];
+        for(int i=0;i<message.length;i++)
+        {
+            if(i%2==0)
+            {
+                if((message[i]^PLAN_1_CHECK_SUM_MASK_EVEN)==0)
+                {
+                    tmp[i]=Decode1(message[i],DECODE_ODD);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                if((message[i]^PLAN_1_CHECK_SUM_MASK_ODD)==0)
+                {
+                    tmp[i]=Decode1(message[i],DECODE_EVEN);                    
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+        return tmp;
     }
 
     // Send in a random message to be the first transaction
@@ -646,12 +681,18 @@ class CommSys
         int[] randMess = RandomMessage();
         if(robot.canSubmitTransaction(randMess,UNIMPORTANT_TRANSC_COST))
         {
-            robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
-            return true;
+            try
+            {
+                robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
+            }
+            catch(GameActionException e)
+            {
+                // Do what here?
+            }
         }
         else
         {
-            return false;
+            // Dont know what to do here
         }
     }
  
@@ -660,7 +701,7 @@ class CommSys
         int[] randMess= new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
         for(int i=0;i<GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;i++)
         {
-            randMess[i]=robot.getID()*(i+1)     // Math.random() does not work ? so Whatever
+            randMess[i]=robot.getID()*(i+1);     // Math.random() does not work ? so Whatever
         }
         return randMess;
     } 
@@ -668,9 +709,9 @@ class CommSys
     // Filter and decode message in transactions
     private ArrayList<int[]> FilterMessage(Transaction[] news)
     {
-        ArrayList<int[]> message;
+        ArrayList<int[]> message = new ArrayList<int[]>();
         int[] tmp;
-        for(int i=0;i<news.length();i++)
+        for(int i=0;i<news.length;i++)
         {
             // If checksum match, add it to the message list
             tmp=checksum1(news[i].getMessage());
@@ -683,8 +724,26 @@ class CommSys
         }
         return message;
     }
-    
-    private void ReadNExecute(ArrayList<int[]>)
+
+    // extract message from the original  message
+    int Decode1(int orgMess,Boolean odd_mask)
+    {
+        int finalMess=0;
+        if(odd_mask==DECODE_ODD)
+        {
+            orgMess>>=1;
+        }
+        for(int i=0;i<16;i++)
+        {
+            if((orgMess & (1<<i*2))!=0)
+            {
+                finalMess|=(1<<i);  
+            } 
+        }
+        return finalMess;
+    }
+
+    private void ReadNExecute(ArrayList<int[]> orderStack)
     {
 
     }
