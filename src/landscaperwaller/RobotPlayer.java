@@ -30,7 +30,8 @@ public final strictfp class RobotPlayer {
 
         turnCount = 0;
 
-        final boolean enablePrinting = System.getProperty("bc.testing.local-testing").equals("true");
+        final String enablePrintingProp = System.getProperty("bc.testing.local-testing");
+        final boolean enablePrinting = enablePrintingProp != null && enablePrintingProp.equals("true");
 
         savedSpawnLoc = rc.getLocation();
 
