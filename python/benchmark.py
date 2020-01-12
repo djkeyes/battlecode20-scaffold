@@ -94,7 +94,9 @@ for benchmark in benchmarks:
         pipe = subprocess.Popen(['git', 'cat-file', '-p',  commit_hash + ':' + old_filename], stdout=subprocess.PIPE)
         with open(new_filename, 'w') as f:
             # TODO(daniel): this could probably be done with shutil, which would help to make this script run on windows
-            command = ['sed', '-r', 's/package ' + orig_package + '/package ' + generated_package + '/']
+            package_regex = 's/package ' + orig_package + '/package ' + generated_package + '/'
+            static_import_regex = 's/import static ' + orig_package + '/import static ' + generated_package + '/'
+            command = ['sed', '-r', '; '.join([package_regex, static_import_regex])]
             sed = subprocess.Popen(command, stdin=pipe.stdout, stdout=f)
             pipe.wait()
     
