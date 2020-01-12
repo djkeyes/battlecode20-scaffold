@@ -48,7 +48,6 @@ public final class BugPathfinding {
     }
 
     public static BehaviorResult pathfind() throws GameActionException {
-        rc.setIndicatorLine(rc.getLocation(), targetLocation, 255, 0, 0);
         return goToBug();
     }
 
