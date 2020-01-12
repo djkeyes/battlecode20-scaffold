@@ -3,6 +3,8 @@ package pathfinding;
 import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
+import static pathfinding.BugPathfinding.setTargetLocationWithoutReset;
+import static pathfinding.BugPathfinding.trySetTargetLocation;
 import static pathfinding.SimplePathfinding.badPathFindTo;
 
 public final strictfp class RobotPlayer {
@@ -34,7 +36,7 @@ public final strictfp class RobotPlayer {
         turnCount = 0;
 
         final String enablePrintingProp = System.getProperty("bc.testing.local-testing");
-        final boolean enablePrinting = enablePrintingProp != null && enablePrintingProp.equals("true");
+        final boolean enablePrinting = true;// enablePrintingProp != null && enablePrintingProp.equals("true");
 
         savedSpawnLoc = rc.getLocation();
 
@@ -203,8 +205,9 @@ public final strictfp class RobotPlayer {
 
             randomExplorationDestination = new MapLocation(col, row);
             randomExplorationDestinationStartTurn = turnCount;
+            BugPathfinding.setTargetLocation(randomExplorationDestination);
         }
-        badPathFindTo(randomExplorationDestination);
+        BugPathfinding.pathfind();
     }
 
     private static BehaviorResult tryMining() throws GameActionException {
@@ -251,7 +254,8 @@ public final strictfp class RobotPlayer {
                 rc.mineSoup(rc.getLocation().directionTo(targetLoc));
                 return BehaviorResult.SUCCESS;
             } else {
-                return badPathFindTo(targetLoc);
+                setTargetLocationWithoutReset(targetLoc);
+                return BugPathfinding.pathfind();
             }
         } else {
             if (rc.getSoupCarrying() > 0) {
@@ -284,7 +288,9 @@ public final strictfp class RobotPlayer {
                 }
 
                 // path back home
-                return badPathFindTo(depositLoc);
+
+                trySetTargetLocation(depositLoc);
+                return BugPathfinding.pathfind();
             }
         }
         return BehaviorResult.FAIL;
