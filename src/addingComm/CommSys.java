@@ -15,6 +15,8 @@ import static battlecode.common.Direction.*;
 *   Add your choice of Command code as a constant
 *   Add the new command code to the corresponding switch
 *   in function ReadNececute() 
+*   For adding a specific command for a specific unit (only HQ, or...)
+*   modify the switch case of function CatchUpPress() 
 *   In your RobotController class
 *   when you need to send the command, use
 *   function send(int[] message)
@@ -153,7 +155,7 @@ public class CommSys
                 case NEWS_REFINERY_BUILT:
                     tmp=DecodeMapLocation(message[1]);
                     System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
-                    if(isNew(tmp,RefineryLocs))
+                    if(RefineryLocs.isNew(tmp))
                     {
                         RefineryLocs.add(tmp);
                     }
@@ -161,7 +163,7 @@ public class CommSys
                 case NEWS_SOUP_FOUND:
                     tmp=DecodeMapLocation(message[1]);
                     System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
-                    if(isNew(tmp,SoupLocs))
+                    if(SoupLocs.isNew(tmp))
                     {
                         SoupLocs.add(tmp);
                     }
@@ -186,6 +188,7 @@ public class CommSys
         {
             return;
         }
+        int[] DecodedMessage;
         while(LastReadRound<CurrentRound)
         {
             // System.out.println(LastReadRound);
@@ -202,7 +205,21 @@ public class CommSys
             if(isKeyAvailable())
             {
                 // Key is available, let's read
-                ReadNExecute(FilterMessage(Magazine));
+                DecodedMessage=FilterMessage(Magazine);
+
+                switch(robot.getType())
+                {
+                    case HQ:
+                    case DESIGN_SCHOOL:
+                    case FULFILLMENT_CENTER:
+                    case NET_GUN:
+                    case VAPORATOR:
+                    case MINER:
+                    case LANDSCAPER:
+                    case DELIVERY_DRONE:
+                    ReadNExecute(DecodedMessage);
+                    break;
+                }
             }
             LastReadRound++;
         }
@@ -533,18 +550,5 @@ public class CommSys
     public static MapLocation DecodeMapLocation(int rawMes)
     {
         return new MapLocation(((rawMes&MAP_DECODE_X_MASK)>>8),rawMes&MAP_DECODE_Y_MASK);
-    }
-
-    private <T> boolean isNew(T vl, DLinkedList<T> list)
-    {
-        DLinkedList<T>.Iterator it=list.getIterator();
-        while(it.hasNext())
-        {
-            if(vl.equals(it.getNext()))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 }

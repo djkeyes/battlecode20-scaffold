@@ -174,4 +174,18 @@ class DLinkedList<T>
 		}
 	}
 
+	// Check if value vl is already contained by an element in the list?
+	public <T> boolean isNew(T vl)
+    {
+        Iterator it=getIterator();
+        while(it.hasNext())
+        {
+            if(vl.equals(it.getNext()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
