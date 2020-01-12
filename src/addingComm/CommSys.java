@@ -1,47 +1,45 @@
 package addingComm;
 
-import java.util.ArrayList;
-
 import battlecode.common.*;
 
-import static battlecode.common.Direction.*;
+import java.util.ArrayList;
 
 /* =====================README============================
-*                   Comm interface
-* How to use ?
-*   Add an instance of the class to your RobotController
-*   Call ReadNews every new round
-* Adding More Commands?
-*   Add your choice of Command code as a constant
-*   Add the new command code to the corresponding switch
-*   in function ReadNececute() 
-*   For adding a specific command for a specific unit (only HQ, or...)
-*   modify the switch case of function CatchUpPress() 
-*   In your RobotController class
-*   when you need to send the command, use
-*   function send(int[] message)
-*   maximal length of message is GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
-*   You have to put the COMMAND CODE of your code to the 
-*   first element of your message array (i.e:message[0])
-*   a message array needs at least 1 element
-*   the size of the message array can be smaller than 
-*   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
-*/
+ *                   Comm interface
+ * How to use ?
+ *   Add an instance of the class to your RobotController
+ *   Call ReadNews every new round
+ * Adding More Commands?
+ *   Add your choice of Command code as a constant
+ *   Add the new command code to the corresponding switch
+ *   in function ReadNececute()
+ *   For adding a specific command for a specific unit (only HQ, or...)
+ *   modify the switch case of function CatchUpPress()
+ *   In your RobotController class
+ *   when you need to send the command, use
+ *   function send(int[] message)
+ *   maximal length of message is GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+ *   You have to put the COMMAND CODE of your code to the
+ *   first element of your message array (i.e:message[0])
+ *   a message array needs at least 1 element
+ *   the size of the message array can be smaller than
+ *   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+ */
 
 public class CommSys
 {
     /*
-    *   @Idea: 
-    *       + Key : the key used for check sum is what ever in the first transaction of 
+    *   @Idea:
+    *       + Key : the key used for check sum is what ever in the first transaction of
     *       the first block
-    *       + CheckSum algorithm: 
-                Plan 1 :For subsequent transaction after the first block,
+    *       + CheckSum algorithm:
+    *           Plan 1 :For subsequent transaction after the first block,
     *       if there is a transaction from our team, the messages (number) with odd index
     *       in that transaction will have the bit with odd index when xor with the message
-    *       of the key at that index result 0. Use even index bits for even index message 
+    *       of the key at that index result 0. Use even index bits for even index message
     *           For ex: For simplicity, let key has 3 numbers
     *                  key =  0b00010100 0b10111001 0b11000110
-                                  even        odd      even
+    *                             even        odd      even
     *        trasanction 1 =  0b10011100 0b10110011 0b11001100
     *        trasanction 2 =  0b10100100 0b10110101 0b10010100
     *        transaction 1 is from our team and transaction 2 is not
@@ -53,14 +51,14 @@ public class CommSys
     *       Plan 2 is more economical in term of computational power
     */
 
-    public static final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;   
+    public static final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;
     public static final int UNIMPORTANT_TRANSC_COST    =   1;
     public static final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
     // ENCODE_EVEN->DECODE_EVEN ECONDE_ODD->DECODE_ODD
-    public static final Boolean DECODE_EVEN            =   true;
-    public static final Boolean DECODE_ODD             =   !DECODE_EVEN;
-    public static final Boolean ENCODE_ODD             =   DECODE_ODD;
-    public static final Boolean ENCODE_EVEN             =  DECODE_EVEN;
+    public static final boolean DECODE_EVEN            =   true;
+    public static final boolean DECODE_ODD             =   !DECODE_EVEN;
+    public static final boolean ENCODE_ODD             =   DECODE_ODD;
+    public static final boolean ENCODE_EVEN             =  DECODE_EVEN;
 
     // Checksum mask
     public static final int PLAN_1_CHECK_SUM_MASK_ODD  =   0b10101010101010101010101010101010; // Odd bit for checksum
@@ -77,7 +75,7 @@ public class CommSys
     // First message is the command code, second message 
     // after decoded will has X coordinate in high byte,
     // Y coordinate in low byte
-    public static final int NEWS_ENEMY_HQ_FOUND        =   1;   
+    public static final int NEWS_ENEMY_HQ_FOUND        =   1;
     public static final int NEWS_REFINERY_BUILT        =   2;
     public static final int NEWS_DESIGN_SCHOOL_BUILT   =   3;
     public static final int NEWS_SOUP_FOUND            =   4;
@@ -97,24 +95,23 @@ public class CommSys
 //    public static final int COMM_START_POPULATION       =   4;
 
     public static int[] Key;
-    private int LastReadRound;         // Index of last read transaction in the block chain 
+    private int LastReadRound;         // Index of last read transaction in the block chain
     private int CurrentRound;
     private Transaction[] Magazine;                 // Block added in the latest round
-    private int[] Mes;                              // Use to store decoded message
-    private RobotController robot;
-    private DLinkedList<MapLocation> RefineryLocs;
-    private DLinkedList<MapLocation> SoupLocs;
+    private final RobotController robot;
+    private final DLinkedList<MapLocation> RefineryLocs;
+    private final DLinkedList<MapLocation> SoupLocs;
     private MapLocation Enemy_HQ;
 
     public static int DECENT_TRANSACTION_COST  = IMPORTANT_TRANSC_COST;     // Should implement a mechanism to find out the minimal cost for the message to be posted
 
-    public CommSys(RobotController robot)
+    public CommSys(final RobotController robot)
     {
         Key=null;
         Enemy_HQ=null;
         this.robot=robot;
-        RefineryLocs=new DLinkedList();
-        SoupLocs=new DLinkedList();
+        RefineryLocs=new DLinkedList<>();
+        SoupLocs=new DLinkedList<>();
         LastReadRound=1;
         CurrentRound=robot.getRoundNum();
     }
@@ -130,7 +127,7 @@ public class CommSys
     }
 
     // Input in a list of decoded messages
-    private void ReadNExecute(ArrayList<int[]> orderStack)
+    private void ReadNExecute(final ArrayList<int[]> orderStack)
     {
         MapLocation tmp;
         int[] message;
@@ -188,9 +185,9 @@ public class CommSys
         {
             return;
         }
-        
+
         ArrayList<int[]> DecodedMessage;
-        
+
         while(LastReadRound<CurrentRound)
         {
             // System.out.println(LastReadRound);
@@ -286,16 +283,16 @@ public class CommSys
         broadcastLocs(messageCode,loc.x,loc.y);
     }
 
-    public void broadcastLocs(int messageCode,int x,int y)
+    public void broadcastLocs(final int messageCode, final int x, final int y)
     {
-        int[] news=new int[]{messageCode,EncodeMapLocation(x,y)};
+        final int[] news=new int[]{messageCode,EncodeMapLocation(x,y)};
         send(news,DECENT_TRANSACTION_COST);
     }
 
-    public void broadcastUnitLocs(RobotInfo rb)
+    public void broadcastUnitLocs(final RobotInfo rb)
     {
         // Currently only building Unit is here
-        RobotType unit_Type=rb.getType();
+        final RobotType unit_Type=rb.getType();
         if(!rb.getTeam().isPlayer())
         {
             // From the enemy
@@ -324,19 +321,19 @@ public class CommSys
 
     }
 
-    public boolean send(int[] message)
+    public boolean send(final int[] message)
     {
         return send(message,DECENT_TRANSACTION_COST);
     }
 
-    public boolean send(int[] message,int bid)
+    public boolean send(final int[] message, final int bid)
     {
         try
         {
-            message=EncodeMessage(message);
-            if(robot.canSubmitTransaction(message,bid))
+            final int[] encodedMessage=EncodeMessage(message);
+            if(robot.canSubmitTransaction(encodedMessage,bid))
             {
-                robot.submitTransaction(message,bid);
+                robot.submitTransaction(encodedMessage,bid);
                 return true;
             }
             else
@@ -344,12 +341,12 @@ public class CommSys
                 return false;
             }
         }
-        catch(GameActionException e)
+        catch(final GameActionException e)
         {
             System.out.println("Having trouble submitting transaction");
             return false;
         }
-        catch(IllegalStateException e)
+        catch(final IllegalStateException e)
         {
             System.out.println("Encoding message failed, maybe because of no key?");
             return false;
@@ -362,7 +359,7 @@ public class CommSys
     *   return the decoded meassge if checksum make
     *   null or else
     */
-    public int[] checksumNextract(int[] message)
+    public int[] checksumNextract(final int[] message)
     {
         return checksum1Nextract(message);
     }
@@ -373,9 +370,9 @@ public class CommSys
     *   return the decoded meassge if checksum make
     *   null or else
     */
-    private int[] checksum1Nextract(int[] message)
+    private int[] checksum1Nextract(final int[] message)
     {
-        int[] tmp=new int[message.length];
+        final int[] tmp=new int[message.length];
         for(int i=0;i<message.length;i++)
         {
             if(i%2==0)
@@ -394,7 +391,7 @@ public class CommSys
             {
                 if(((message[i]^Key[i])&PLAN_1_CHECK_SUM_MASK_EVEN)==0)
                 {
-                    tmp[i]=Decode(message[i],DECODE_ODD);                    
+                    tmp[i]=Decode(message[i],DECODE_ODD);
                 }
                 else
                 {
@@ -423,7 +420,7 @@ public class CommSys
         else
         {
 
-            int[] randMess= RandomMessage();
+            final int[] randMess= RandomMessage();
 
             if(robot.canSubmitTransaction(randMess,UNIMPORTANT_TRANSC_COST))
             {
@@ -442,21 +439,21 @@ public class CommSys
             }
         }
     }
- 
+
     private int[] RandomMessage()
     {
-        int[] randMess= new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
+        final int[] randMess= new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
         for(int i=0;i<GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;i++)
         {
             randMess[i]=robot.getID()*(i+1);     // Math.random() does not work ? so Whatever
         }
         return randMess;
-    } 
+    }
 
     // Filter and decode message in transactions
-    private ArrayList<int[]> FilterMessage(Transaction[] news)
+    private ArrayList<int[]> FilterMessage(final Transaction[] news)
     {
-        ArrayList<int[]> message = new ArrayList<int[]>();
+        final ArrayList<int[]> message = new ArrayList<>();
         int[] tmp;
         for(int i=0;i<news.length;i++)
         {
@@ -468,13 +465,13 @@ public class CommSys
                 // Save the decoded message
                 message.add(tmp);
             }
-     
+
         }
         return message;
     }
 
     // extract message from the original  message
-    static int Decode1(int orgMess,Boolean odd_mask)
+    static int Decode1(int orgMess, final boolean odd_mask)
     {
         int finalMess=0;
         if(odd_mask==DECODE_ODD)
@@ -485,22 +482,22 @@ public class CommSys
         {
             if((orgMess & (1<<i*2))!=0)
             {
-                finalMess|=(1<<i);  
-            } 
+                finalMess|=(1<<i);
+            }
         }
         return finalMess;
     }
 
     // Encode message ( a sequence of integer)
-    static int[] EncodeMessage(int[] message) throws IllegalStateException
+    static int[] EncodeMessage(final int[] message) throws IllegalStateException
     {
         if(Key==null)
-        {   
+        {
             System.out.println("No key, no Encoding!");
             throw(new IllegalStateException());
         }
 
-        int[] tmp=new int[message.length];
+        final int[] tmp=new int[message.length];
         for(int i=0;i<message.length;i++)
         {
             tmp[i]=Encode(message[i],Key[i],(i%2==0?ENCODE_EVEN:ENCODE_ODD));
@@ -509,18 +506,18 @@ public class CommSys
     }
 
     // General interface, change Encode1->Encode2 to use plan 2
-    static int Decode(int orgMess,Boolean odd_mask)
+    static int Decode(final int orgMess, final boolean odd_mask)
     {
         return Decode1(orgMess,odd_mask);
     }
 
-    static int Encode(int orgMess,int CheckSum,Boolean odd_mask)
+    static int Encode(final int orgMess, final int CheckSum, final boolean odd_mask)
     {
         return Encode1(orgMess,CheckSum,odd_mask);
     }
 
     // Encode with plan 1 message from the original  message
-    static int Encode1(int orgMess,int CheckSum,Boolean odd_mask)
+    static int Encode1(final int orgMess, final int CheckSum, final boolean odd_mask)
     {
         int finalMess=0;
         int shift=0;
@@ -531,7 +528,7 @@ public class CommSys
         }
         else
         {
-            finalMess|=(CheckSum&PLAN_1_CHECK_SUM_MASK_EVEN);            
+            finalMess|=(CheckSum&PLAN_1_CHECK_SUM_MASK_EVEN);
             shift=1;
         }
         for(int i=0;i<16;i++)
@@ -544,12 +541,12 @@ public class CommSys
         return finalMess;
     }
 
-    public static int EncodeMapLocation(int X,int Y)
+    public static int EncodeMapLocation(final int X, final int Y)
     {
         return (X<<8)|Y;
     }
 
-    public static MapLocation DecodeMapLocation(int rawMes)
+    public static MapLocation DecodeMapLocation(final int rawMes)
     {
         return new MapLocation(((rawMes&MAP_DECODE_X_MASK)>>8),rawMes&MAP_DECODE_Y_MASK);
     }
