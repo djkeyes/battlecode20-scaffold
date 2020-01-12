@@ -468,10 +468,112 @@ public final strictfp class RobotPlayer {
             return;
         }
 
+        if (attackEnemyHq() != BehaviorResult.FAIL) {
+            return;
+        }
         chooseAttackTargetLocation();
 
         BugPathfinding.pathfind();
 
+    }
+
+    private static BehaviorResult attackEnemyHq() throws GameActionException {
+        // TODO: detect HQ in other ways, e.g. via blockchain
+        if (cachedHqLocation == null) {
+            return BehaviorResult.FAIL;
+        }
+        MapLocation detectedHqLoc = null;
+        for (int i = 0; i < 3; ++i) {
+            if (MapSymmetry.isSymmetryPossible[i]) {
+                final MapLocation possibleLocation = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
+                final int distSq = rc.getLocation().distanceSquaredTo(possibleLocation);
+                if (rc.getCurrentSensorRadiusSquared() >= distSq) {
+                    final RobotInfo robot = rc.senseRobotAtLocation(possibleLocation);
+                    if (robot != null && robot.type == RobotType.HQ) {
+                        detectedHqLoc = robot.location;
+                        break;
+                    }
+                }
+            }
+        }
+        if (detectedHqLoc == null) {
+            return BehaviorResult.FAIL;
+        }
+
+        final int distSq = rc.getLocation().distanceSquaredTo(detectedHqLoc);
+        if (distSq >= 9) {
+            // TODO: if we add an aggressive pathfinding function that digs holes, add it here
+            BugPathfinding.trySetTargetLocation(detectedHqLoc);
+            return BugPathfinding.pathfind();
+        }
+
+        final RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(2, rc.getTeam().opponent());
+        int weakestBuildingHealth = 100;
+        // is it better to target a weak building, or the HQ?
+        // is it possible to sense dirt on a building (other than tracking it)? seems like no.
+        RobotInfo weakestBuilding = null;
+        for (final RobotInfo enemy : nearbyEnemies) {
+            if (enemy.type.isBuilding()) {
+                if (enemy.type.dirtLimit < weakestBuildingHealth) {
+                    weakestBuilding = enemy;
+                    weakestBuildingHealth = enemy.type.dirtLimit;
+                }
+            }
+        }
+        if (weakestBuilding != null) {
+            // attack this building
+            if (rc.getDirtCarrying() > 0) {
+                rc.depositDirt(rc.getLocation().directionTo(weakestBuilding.location));
+                return BehaviorResult.SUCCESS;
+            }
+        }
+
+        // can we move next to the HQ?
+        // (if we're already there, figure out where to possibly dig, and if we're not, figure out where to possible
+        // drop off)
+        Direction lowestDirAdjacentToHq = CENTER;
+        int lowestElevation = Integer.MAX_VALUE;
+        Direction dirFurthestFromHq = null;
+        int furthestDistFromHq = 0;
+        for (final Direction d : octalDirections) {
+            final MapLocation next = rc.getLocation().add(d);
+            final boolean canDig = rc.canDigDirt(d);
+            if (!rc.getLocation().isAdjacentTo(detectedHqLoc)) {
+                if (next.isAdjacentTo(detectedHqLoc)) {
+                    if (rc.canMove(d)) {
+                        rc.move(d);
+                        return BehaviorResult.SUCCESS;
+                    }
+                    if (canDig) {
+                        final int elevation = rc.senseElevation(next);
+                        if (elevation < lowestElevation) {
+                            lowestElevation = elevation;
+                            lowestDirAdjacentToHq = d;
+                        }
+                    }
+                }
+            }
+            if (canDig) {
+                final int distSqToHq = next.distanceSquaredTo(detectedHqLoc);
+                if (distSqToHq > furthestDistFromHq) {
+                    furthestDistFromHq = distSqToHq;
+                    dirFurthestFromHq = d;
+                }
+            }
+        }
+
+        if (rc.getDirtCarrying() < rc.getType().dirtLimit) {
+            // dig a tile near the hq
+            rc.digDirt(lowestDirAdjacentToHq);
+            return BehaviorResult.SUCCESS;
+        } else if (dirFurthestFromHq != null) {
+            // we're full, and there are no buildings to destroy
+            // deposit the dirt in a direction far from the hq
+            rc.depositDirt(dirFurthestFromHq);
+            return BehaviorResult.SUCCESS;
+        }
+
+        return BehaviorResult.POSTPONED;
     }
 
     private static void chooseInitialAttackTargetLocation() {
@@ -480,10 +582,22 @@ public final strictfp class RobotPlayer {
         lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
     }
 
-    private static void chooseAttackTargetLocation() {
+    private static void chooseAttackTargetLocation() throws GameActionException {
         if (rc.getRoundNum() - lastAttackTargetTurn >= 100) {
             final int symmetryAssumption = (rc.getRoundNum() / 100) % 3;
-            final MapLocation target = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, symmetryAssumption);
+            MapLocation target = null;
+            if (MapSymmetry.isSymmetryPossible[symmetryAssumption]) {
+                target = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, symmetryAssumption);
+                if (rc.getLocation().distanceSquaredTo(target) <= rc.getCurrentSensorRadiusSquared()) {
+                    final RobotInfo robot = rc.senseRobotAtLocation(target);
+                    if (robot == null || robot.type != RobotType.HQ) {
+                        MapSymmetry.isSymmetryPossible[symmetryAssumption] = false;
+                    }
+                }
+            }
+            if (!MapSymmetry.isSymmetryPossible[symmetryAssumption]) {
+                target = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+            }
             BugPathfinding.setTargetLocation(target);
             lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
         }
