@@ -25,6 +25,7 @@ public final strictfp class RobotPlayer {
     private static int lastAttackTargetTurn = 0;
 
     private static boolean isAggressiveLandscaper = false;
+    private static int attackRoundNumInterval;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -149,6 +150,9 @@ public final strictfp class RobotPlayer {
     private static void initLandscaper() {
         isAggressiveLandscaper = rc.getRoundNum() < 100;
         if (isAggressiveLandscaper) {
+            // to cover a big map, we need roughly 2 * the side length steps, assuming we manage to mostly go in a
+            // straight line. Offset a little, since HQs usually aren't nestled right in the corner.
+            attackRoundNumInterval = 2 * (Math.max(rc.getMapWidth(), rc.getMapHeight()) - 9);
             chooseInitialAttackTargetLocation();
         }
     }
