@@ -9,11 +9,11 @@ import static battlecode.common.Direction.*;
 // Singly linked list
 class SLinkedList<T>
 {
-	class Node<T>
+	static class Node<T>
 	{
-		private T value;
-		private Node next,last;
-		public Node(T val,Node nxt)
+		private final T value;
+		private Node<T> next,last;
+		public Node(final T val, final Node<T> nxt)
 		{
 			value=val;
 			next=nxt;
@@ -22,7 +22,7 @@ class SLinkedList<T>
 
 	public class Iterator
 	{
-		private Node it;
+		private Node<T> it;
 		public Iterator()
 		{
 			it=head;
@@ -50,16 +50,16 @@ class SLinkedList<T>
 		return new Iterator();
 	}
 
-	Node head,last;
+	Node<T> head,last;
 
 	public SLinkedList()
 	{
-		head=last=new Node(null,null);	// head node
+		head=last= new Node<>(null, null);	// head node
 	}
 
-	public void add(T val)
+	public void add(final T val)
 	{
-		last.next=new Node(val,null);
+		last.next= new Node<>(val, null);
 		last=last.next;
 	}
 
@@ -73,11 +73,11 @@ class SLinkedList<T>
 //Doubly Linked list
 class DLinkedList<T>
 {
-	class Node<T>
+	static class Node<T>
 	{
-		private T value;
-		private Node left,right;
-		public Node(T val,Node left,Node right)
+		private final T value;
+		private Node<T> left,right;
+		public Node(final T val, final Node<T> left, final Node<T> right)
 		{
 			value=val;
 			this.left=left;
@@ -87,7 +87,7 @@ class DLinkedList<T>
 
 	public class Iterator
 	{
-		private Node it;
+		private Node<T> it;
 		public Iterator()
 		{
 			it=head;
@@ -101,7 +101,7 @@ class DLinkedList<T>
 			if(hasNext())
 			{
 				it=it.right;
-				return (T) it.value;
+				return it.value;
 			} 
 			else
 			{
@@ -115,11 +115,11 @@ class DLinkedList<T>
 		return new Iterator();
 	}
 
-	Node head,last;
+	Node<T> head,last;
 
 	public DLinkedList()
 	{
-		head=new Node(null,head,head);	// head node
+		head= new Node<>(null, null, null);	// head node
 		last=head;
 	}
 
@@ -127,9 +127,9 @@ class DLinkedList<T>
 	{
 		return head.right==null;
 	}
-	public void add(T val)
+	public void add(final T val)
 	{
-		last=new Node(val,last,null);
+		last= new Node<>(val, last, null);
 		last.left.right=last;
 	}
 
@@ -141,14 +141,14 @@ class DLinkedList<T>
 		}
 		else
 		{
-			Node tmp=last;
+			final Node<T> tmp=last;
 			last=last.left;
 			last.right=null;
 			return (T) tmp.value;
 		}
 	}
 
-	public boolean findNremove(T target)
+	public boolean findNremove(final T target)
 	{
 		if(isEmpty())
 		{
@@ -156,7 +156,7 @@ class DLinkedList<T>
 		}
 		else
 		{
-			Node now=head.right;
+			Node<T> now=head.right;
 			do
 			{
 				if(now.value.equals(target))
@@ -175,9 +175,9 @@ class DLinkedList<T>
 	}
 
 	// Check if value vl is already contained by an element in the list?
-	public <T> boolean isNew(T vl)
+	public boolean isNew(final T vl)
     {
-        Iterator it=getIterator();
+        final Iterator it=getIterator();
         while(it.hasNext())
         {
             if(vl.equals(it.getNext()))
