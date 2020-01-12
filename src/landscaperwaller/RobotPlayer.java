@@ -656,12 +656,12 @@ public final strictfp class RobotPlayer {
     private static void chooseInitialAttackTargetLocation() {
         // initially, just aim for center of map as a staging ground
         BugPathfinding.setTargetLocation(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
-        lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
+        lastAttackTargetTurn = rc.getRoundNum() / attackRoundNumInterval * attackRoundNumInterval;
     }
 
     private static void chooseAttackTargetLocation() throws GameActionException {
-        if (rc.getRoundNum() - lastAttackTargetTurn >= 100) {
-            final int symmetryAssumption = (rc.getRoundNum() / 100) % 3;
+        if (rc.getRoundNum() - lastAttackTargetTurn >= attackRoundNumInterval) {
+            final int symmetryAssumption = (rc.getRoundNum() / attackRoundNumInterval) % 3;
             MapLocation target = null;
             if (MapSymmetry.isSymmetryPossible[symmetryAssumption]) {
                 target = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, symmetryAssumption);
@@ -676,7 +676,7 @@ public final strictfp class RobotPlayer {
                 target = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
             }
             BugPathfinding.setTargetLocation(target);
-            lastAttackTargetTurn = rc.getRoundNum() / 100 * 100;
+            lastAttackTargetTurn = rc.getRoundNum() / attackRoundNumInterval * attackRoundNumInterval;
         }
     }
 
