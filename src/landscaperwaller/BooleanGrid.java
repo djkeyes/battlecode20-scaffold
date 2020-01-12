@@ -28,20 +28,20 @@ public final class BooleanGrid {
         final int gridIdx = y * GameConstants.MAP_MAX_WIDTH + x;
         final int elementIdx = gridIdx / BITS_IN_BACKING_DATATYPE;
         final int bitIdx = gridIdx % BITS_IN_BACKING_DATATYPE;
-        return ((grid[elementIdx] >> bitIdx) & 1) != 0;
+        return ((grid[elementIdx] >> bitIdx) & 1L) != 0;
     }
 
     public void setTrue(final int x, final int y) {
         final int gridIdx = y * GameConstants.MAP_MAX_WIDTH + x;
         final int elementIdx = gridIdx / BITS_IN_BACKING_DATATYPE;
-        final int bitIdx = gridIdx % BITS_IN_BACKING_DATATYPE;
-        grid[elementIdx] |= (1 << bitIdx);
+        final long bitIdx = gridIdx % BITS_IN_BACKING_DATATYPE;
+        grid[elementIdx] |= (1L << bitIdx);
     }
 
     public void setFalse(final int x, final int y) {
         final int gridIdx = y * GameConstants.MAP_MAX_WIDTH + x;
         final int elementIdx = gridIdx / BITS_IN_BACKING_DATATYPE;
-        final int bitIdx = gridIdx % BITS_IN_BACKING_DATATYPE;
-        grid[elementIdx] &= ~(1 << bitIdx);
+        final long bitIdx = gridIdx % BITS_IN_BACKING_DATATYPE;
+        grid[elementIdx] &= ~(1L << bitIdx);
     }
 }
