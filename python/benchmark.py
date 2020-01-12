@@ -12,9 +12,11 @@ src_dir = './src/'
 # benchmarks, in the format (package name, commit hash, debug params)
 # (use a singleton list if no params to try)
 benchmarks = [
-    ('landscaperwaller', 'ec78354b0c75278446a2b6811ac993905b376b31', ['']),
+    ('landscaperwaller', 'fe81b75ee074cab8955a3ab274a9d64c1268abfe', ['']), # attacks a little
+    ('landscaperwaller', 'fe2d4920cc05b243e132e656f16f288e11858f7a', ['']), # completely defensive
     ('examplefuncsplayer', 'ec78354b0c75278446a2b6811ac993905b376b31', ['']),
-    ('noop', 'ec78354b0c75278446a2b6811ac993905b376b31', [''])
+    ('noop', 'ec78354b0c75278446a2b6811ac993905b376b31', ['']),
+    ('pathfinding', 'fe81b75ee074cab8955a3ab274a9d64c1268abfe', ['']),
 ]
 
 maps = [
@@ -26,8 +28,8 @@ maps = [
     'TwoForOneAndTwoForAll',
     'WaterBot',
     'Big',
-    'Small'
-
+    'Small',
+    'HardToPathfind'
 ]
 
 benchmark_prefix = 'benchmark'
