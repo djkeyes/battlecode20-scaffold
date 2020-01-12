@@ -23,9 +23,10 @@ public final strictfp class RobotPlayer {
     private static MapLocation cachedSoupLoc = null;
     private static int miners_built = 0;
     private static int lastAttackTargetTurn = 0;
+    private static int lastSymmetryAssumption = 0;
+    private static MapLocation attackTarget = null;
 
     private static boolean isAggressiveLandscaper = false;
-    private static int attackRoundNumInterval;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -141,12 +142,6 @@ public final strictfp class RobotPlayer {
 
     private static void initLandscaper() {
         isAggressiveLandscaper = rc.getRoundNum() < 100;
-        if (isAggressiveLandscaper) {
-            // to cover a big map, we need roughly 2 * the side length steps, assuming we manage to mostly go in a
-            // straight line. Offset a little, since HQs usually aren't nestled right in the corner.
-            attackRoundNumInterval = 2 * (Math.max(rc.getMapWidth(), rc.getMapHeight()) - 9);
-            chooseInitialAttackTargetLocation();
-        }
     }
 
     private static void initFulfillmentCenter() {
@@ -561,7 +556,9 @@ public final strictfp class RobotPlayer {
         }
         MapLocation detectedHqLoc = null;
         for (int i = 0; i < 3; ++i) {
-            if (MapSymmetry.isSymmetryPossible[i]) {
+            // this just checks the symmetry for completeness (e.g. on small maps), but the actually tracking of
+            // symmetry is handled elsewhere.
+            if (MapSymmetry.isSymmetryPossible(i)) {
                 final MapLocation possibleLocation = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
                 final int distSq = rc.getLocation().distanceSquaredTo(possibleLocation);
                 if (rc.getCurrentSensorRadiusSquared() >= distSq) {
@@ -653,30 +650,34 @@ public final strictfp class RobotPlayer {
         return BehaviorResult.POSTPONED;
     }
 
-    private static void chooseInitialAttackTargetLocation() {
-        // initially, just aim for center of map as a staging ground
-        BugPathfinding.setTargetLocation(new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2));
-        lastAttackTargetTurn = rc.getRoundNum() / attackRoundNumInterval * attackRoundNumInterval;
-    }
-
     private static void chooseAttackTargetLocation() throws GameActionException {
-        if (rc.getRoundNum() - lastAttackTargetTurn >= attackRoundNumInterval) {
-            final int symmetryAssumption = (rc.getRoundNum() / attackRoundNumInterval) % 3;
-            MapLocation target = null;
-            if (MapSymmetry.isSymmetryPossible[symmetryAssumption]) {
-                target = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, symmetryAssumption);
-                if (rc.getLocation().distanceSquaredTo(target) <= rc.getCurrentSensorRadiusSquared()) {
-                    final RobotInfo robot = rc.senseRobotAtLocation(target);
+        boolean needToUpdateTarget = attackTarget == null;
+
+        if (!needToUpdateTarget) {
+            if (MapSymmetry.getNumSymmetriesPossible() > 1) {
+                if (rc.getLocation().distanceSquaredTo(attackTarget) <= rc.getCurrentSensorRadiusSquared()) {
+                    final RobotInfo robot = rc.senseRobotAtLocation(attackTarget);
                     if (robot == null || robot.type != RobotType.HQ) {
-                        MapSymmetry.isSymmetryPossible[symmetryAssumption] = false;
+                        MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
+
+                        needToUpdateTarget = true;
+                    } else {
+                        MapSymmetry.setSymmetry(lastSymmetryAssumption);
                     }
                 }
             }
-            if (!MapSymmetry.isSymmetryPossible[symmetryAssumption]) {
-                target = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+            if (rc.getRoundNum() - lastAttackTargetTurn >= 1.5 * (rc.getMapHeight() + rc.getMapWidth())) {
+                // might be having trouble with pathfinding
+                needToUpdateTarget = true;
             }
-            BugPathfinding.setTargetLocation(target);
-            lastAttackTargetTurn = rc.getRoundNum() / attackRoundNumInterval * attackRoundNumInterval;
+        }
+
+        if (needToUpdateTarget) {
+            // reset attack target
+            ++lastSymmetryAssumption;
+            attackTarget = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, lastSymmetryAssumption);
+            BugPathfinding.setTargetLocation(attackTarget);
+            lastAttackTargetTurn = rc.getRoundNum();
         }
     }
 

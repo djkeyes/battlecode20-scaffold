@@ -12,7 +12,39 @@ public final class MapSymmetry {
     public static final int HORIZONTAL_SYMMETRY = 1;
     public static final int ROTATIONAL_SYMMETRY = 2;
 
-    public static final boolean[] isSymmetryPossible = {true, true, true};
+    private static final boolean[] isSymmetryPossible = {true, true, true};
+    private static int numSymmetriesPossible = 3;
+
+    public static boolean isSymmetryPossible(final int symmetry) {
+        return isSymmetryPossible[symmetry];
+    }
+
+    public static int getNumSymmetriesPossible() {
+        return numSymmetriesPossible;
+    }
+
+    public static void eliminateSymmetry(final int symmetry) {
+        isSymmetryPossible[symmetry] = false;
+        --numSymmetriesPossible;
+    }
+
+    public static void setSymmetry(final int symmetry) {
+        if (isSymmetryPossible[0]) {
+            if (symmetry != 0) {
+                eliminateSymmetry(0);
+            }
+        }
+        if (isSymmetryPossible[1]) {
+            if (symmetry != 1) {
+                eliminateSymmetry(1);
+            }
+        }
+        if (isSymmetryPossible[2]) {
+            if (symmetry != 2) {
+                eliminateSymmetry(2);
+            }
+        }
+    }
 
     public static MapLocation[] getAllSymmetricCoords(final RobotController rc, final MapLocation location) {
         return new MapLocation[]{
