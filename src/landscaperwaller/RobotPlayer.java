@@ -114,21 +114,21 @@ public final strictfp class RobotPlayer {
                         break;
                 }
 
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                final int endRoundNum = rc.getRoundNum();
-                if (enablePrinting && endRoundNum != startRoundNum) {
-                    System.out.println("Over bytecode limit!");
-                    System.out.println("bytecodes used: " + Clock.getBytecodeNum());
-                }
-                Clock.yield();
-                startRoundNum = rc.getRoundNum();
-
             } catch (final Exception e) {
                 if (enablePrinting) {
                     System.out.println(rc.getType() + " Exception");
                     e.printStackTrace();
                 }
             }
+
+            // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
+            final int endRoundNum = rc.getRoundNum();
+            if (enablePrinting && endRoundNum != startRoundNum) {
+                System.out.println("Over bytecode limit!");
+                System.out.println("bytecodes used: " + Clock.getBytecodeNum());
+            }
+            Clock.yield();
+            startRoundNum = rc.getRoundNum();
             turnCount += 1;
         }
     }
