@@ -156,7 +156,15 @@ public class CommSys
             if(Magazine.length!=0)
             {
                 Key=Magazine[0].getMessage();       // Save as the key then
-                System.out.println("Key found");
+
+                // Printing the key
+                System.out.print("Obtained Key - ");
+                for(int i=0;i<Key.length;i++)
+                {
+                    System.out.print(Key[i] + " ");
+                }
+                System.out.println();
+
                 // Also, take off the first transaction so that ReadMessage won't read this again
                 // HOW???
                 // Instead of removing the message, let makes the first message become invalid
@@ -248,6 +256,11 @@ public class CommSys
             System.out.println("Having trouble submitting transaction");
             return false;
         }
+        catch(IllegalStateException e)
+        {
+            System.out.println("Encoding message failed, maybe because of no key?");
+            return false;
+        }
     }
 
     /*
@@ -274,23 +287,25 @@ public class CommSys
         {
             if(i%2==0)
             {
-                if((message[i]^PLAN_1_CHECK_SUM_MASK_EVEN)==0)
+                if(((message[i]^Key[i])&PLAN_1_CHECK_SUM_MASK_ODD)==0)
                 {
                     tmp[i]=Decode(message[i],DECODE_EVEN);
                 }
                 else
                 {
+                    System.out.println("Checksum unmatch");
                     return null;
                 }
             }
             else
             {
-                if((message[i]^PLAN_1_CHECK_SUM_MASK_ODD)==0)
+                if(((message[i]^Key[i])&PLAN_1_CHECK_SUM_MASK_EVEN)==0)
                 {
                     tmp[i]=Decode(message[i],DECODE_ODD);                    
                 }
                 else
                 {
+                    System.out.println("Checksum unmatched.");
                     return null;
                 }
             }
@@ -353,7 +368,7 @@ public class CommSys
         for(int i=0;i<news.length;i++)
         {
             // If checksum match, add it to the message list
-            tmp=checksum1Nextract(news[i].getMessage());
+            tmp=checksumNextract(news[i].getMessage());
             // Checksum1Nextract automatically decode the message
             if(tmp!=null)
             {
@@ -392,7 +407,7 @@ public class CommSys
             throw(new IllegalStateException());
         }
 
-        int[] tmp=new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
+        int[] tmp=new int[message.length];
         for(int i=0;i<message.length;i++)
         {
             tmp[i]=Encode(message[i],Key[i],(i%2==0?ENCODE_EVEN:ENCODE_ODD));
@@ -469,6 +484,7 @@ public class CommSys
         for(int i=0;i<orderStack.size();i++)
         {
             message=orderStack.get(i);
+            System.out.println("MESSAGE_CODE = "+message[0]);
             switch(message[0])
             {
                 case NEWS_ENEMY_HQ_FOUND:
