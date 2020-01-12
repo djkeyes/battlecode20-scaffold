@@ -443,7 +443,7 @@ public final strictfp class RobotPlayer {
     }
 
     static void runDesignSchool() throws GameActionException {
-        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo[] nearby = rc.senseNearbyRobots(rc.getCurrentSensorRadiusSquared(), rc.getTeam());
         final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
         if (landscapers.length < 8) {
             trySpawn(RobotType.LANDSCAPER);
