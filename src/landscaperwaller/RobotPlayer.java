@@ -167,7 +167,7 @@ public final strictfp class RobotPlayer {
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         final RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
         final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
-        if (miners_built == 0 || (miners_built < 2 && design != null) || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
+        if (miners_built < 2 || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
             final BehaviorResult result = trySpawn(RobotType.MINER);
             if (result != BehaviorResult.FAIL) {
                 if (result == BehaviorResult.SUCCESS) {
@@ -305,6 +305,12 @@ public final strictfp class RobotPlayer {
     }
 
     private static BehaviorResult tryClusteredBuild() throws GameActionException {
+        // during the initial build order, unless you're rushing landscapers, it always makes sense to build 2
+        // miners before building a design school. Miner + Miner + HQ = 3
+        if (rc.getRobotCount() < 3) {
+            return BehaviorResult.FAIL;
+        }
+
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         // 1. find nearby HQ
         final RobotInfo nearestHq = findNearestByType(nearby, RobotType.HQ);
