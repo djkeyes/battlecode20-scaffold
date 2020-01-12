@@ -188,7 +188,9 @@ public class CommSys
         {
             return;
         }
-        int[] DecodedMessage;
+        
+        ArrayList<int[]> DecodedMessage;
+        
         while(LastReadRound<CurrentRound)
         {
             // System.out.println(LastReadRound);

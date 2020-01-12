@@ -685,8 +685,38 @@ public final strictfp class RobotPlayer {
 
     }
 
-    static void runNetGun() throws GameActionException {
+    // Return all enemy unit in vision
+    static RobotInfo[] CheckRadar()
+    {
+        return rc.senseNearbyRobots(-1,rc.getTeam().opponent());
+    }
 
+    // Pick the closest shootable unit
+    static RobotInfo pickTarget(RobotInfo[] targetList)
+    {
+        RobotInfo target=null;
+        int minDis=Integer.MAX_VALUE;
+        for(RobotInfo tg:targetList)
+        {
+            if(minDis>rc.getLocation().distanceSquaredTo(tg.getLocation()))
+            {
+                if(rc.canShootUnit(tg.getID()))
+                {
+                    target=tg;
+                    minDis=rc.getLocation().distanceSquaredTo(tg.getLocation());
+                }
+            }
+        }
+        return target;
+
+    }
+    static void runNetGun() throws GameActionException {
+        RobotInfo[] targetList=CheckRadar();
+        RobotInfo target=pickTarget(targetList);
+        if(target!=null)
+        {
+            rc.shootUnit(target.getID());
+        }
     }
 
     static BehaviorResult trySpawn(final RobotType type) throws GameActionException {
