@@ -680,8 +680,14 @@ public final strictfp class RobotPlayer {
 
         if (needToUpdateTarget) {
             // reset attack target
-            ++lastSymmetryAssumption;
-            lastSymmetryAssumption %= 3;
+            int nextSymmetry = 0;
+            for (int i=1; i <=3; ++i) {
+                nextSymmetry = (lastSymmetryAssumption + i)%3;
+                if (MapSymmetry.isSymmetryPossible(nextSymmetry)) {
+                    break;
+                }
+            }
+            lastSymmetryAssumption = nextSymmetry;
             attackTarget = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, lastSymmetryAssumption);
             BugPathfinding.setTargetLocation(attackTarget);
             lastAttackTargetTurn = rc.getRoundNum();
