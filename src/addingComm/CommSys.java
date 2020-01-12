@@ -6,6 +6,26 @@ import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
 
+/* =====================README============================
+*                   Comm interface
+* How to use ?
+*   Add an instance of the class to your RobotController
+*   Call ReadNews every new round
+* Adding More Commands?
+*   Add your choice of Command code as a constant
+*   Add the new command code to the corresponding switch
+*   in function ReadNececute() 
+*   In your RobotController class
+*   when you need to send the command, use
+*   function send(int[] message)
+*   maximal length of message is GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+*   You have to put the COMMAND CODE of your code to the 
+*   first element of your message array (i.e:message[0])
+*   a message array needs at least 1 element
+*   the size of the message array can be smaller than 
+*   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+*/
+
 public class CommSys
 {
     /*
@@ -105,6 +125,55 @@ public class CommSys
     {
         CurrentRound=robot.getRoundNum();
         CatchUpPress();
+    }
+
+    // Input in a list of decoded messages
+    private void ReadNExecute(ArrayList<int[]> orderStack)
+    {
+        MapLocation tmp;
+        int[] message;
+        // messages in here are already decoded
+        for(int i=0;i<orderStack.size();i++)
+        {
+            message=orderStack.get(i);
+            System.out.println("MESSAGE_CODE = "+message[0]);
+            switch(message[0])
+            {
+                case NEWS_ENEMY_HQ_FOUND:
+                    if(Enemy_HQ!=null)
+                    {
+                        System.out.println("Second Enemy_HQ found, something is wrong");
+                    }
+                    else
+                    {
+                        Enemy_HQ=DecodeMapLocation(message[1]);
+                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
+                    }
+                    break;
+                case NEWS_REFINERY_BUILT:
+                    tmp=DecodeMapLocation(message[1]);
+                    System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
+                    if(isNew(tmp,RefineryLocs))
+                    {
+                        RefineryLocs.add(tmp);
+                    }
+                    break;
+                case NEWS_SOUP_FOUND:
+                    tmp=DecodeMapLocation(message[1]);
+                    System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
+                    if(isNew(tmp,SoupLocs))
+                    {
+                        SoupLocs.add(tmp);
+                    }
+                    break;
+                case NEWS_SOUP_IS_OUT:
+                    tmp=DecodeMapLocation(message[1]);
+                    SoupLocs.findNremove(tmp);
+                    break;
+                default:
+                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
+            }
+        }
     }
 
     // Read all the message from the first round to the last round
@@ -234,6 +303,11 @@ public class CommSys
             }
         }
 
+    }
+
+    public boolean send(int[] message)
+    {
+        return send(message,DECENT_TRANSACTION_COST);
     }
 
     public boolean send(int[] message,int bid)
@@ -472,55 +546,5 @@ public class CommSys
             }
         }
         return true;
-    }
-
-
-    // Input in a list of decoded messages
-    private void ReadNExecute(ArrayList<int[]> orderStack)
-    {
-        MapLocation tmp;
-        int[] message;
-        // messages in here are already decoded
-        for(int i=0;i<orderStack.size();i++)
-        {
-            message=orderStack.get(i);
-            System.out.println("MESSAGE_CODE = "+message[0]);
-            switch(message[0])
-            {
-                case NEWS_ENEMY_HQ_FOUND:
-                    if(Enemy_HQ!=null)
-                    {
-                        System.out.println("Second Enemy_HQ found, something is wrong");
-                    }
-                    else
-                    {
-                        Enemy_HQ=DecodeMapLocation(message[1]);
-                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
-                    }
-                    break;
-                case NEWS_REFINERY_BUILT:
-                    tmp=DecodeMapLocation(message[1]);
-                    System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
-                    if(isNew(tmp,RefineryLocs))
-                    {
-                        RefineryLocs.add(tmp);
-                    }
-                    break;
-                case NEWS_SOUP_FOUND:
-                    tmp=DecodeMapLocation(message[1]);
-                    System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
-                    if(isNew(tmp,SoupLocs))
-                    {
-                        SoupLocs.add(tmp);
-                    }
-                    break;
-                case NEWS_SOUP_IS_OUT:
-                    tmp=DecodeMapLocation(message[1]);
-                    SoupLocs.findNremove(tmp);
-                    break;
-                default:
-                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
-            }
-        }
     }
 }
