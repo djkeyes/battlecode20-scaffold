@@ -189,6 +189,13 @@ public final strictfp class RobotPlayer {
                 return;
             }
         }
+
+        final RobotInfo[] targetList = CheckRadar();
+        final RobotInfo target = pickTarget(targetList);
+        if (target != null) {
+            rc.shootUnit(target.getID());
+            return;
+        }
     }
 
     static void runMiner() throws GameActionException {
