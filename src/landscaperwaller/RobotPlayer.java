@@ -494,6 +494,10 @@ public final strictfp class RobotPlayer {
             return;
         }
 
+        if (defendAdjacentBuildings(nearby) != BehaviorResult.FAIL) {
+            return;
+        }
+
         if (isAggressiveLandscaper) {
             if (sendScoutingInformation() != BehaviorResult.FAIL) {
                 return;
@@ -661,6 +665,34 @@ public final strictfp class RobotPlayer {
                 }
             }
         }
+    }
+
+    private static BehaviorResult defendAdjacentBuildings(final RobotInfo[] nearby) throws GameActionException {
+        if (rc.getDirtCarrying() == rc.getType().dirtLimit) {
+            return BehaviorResult.FAIL;
+        }
+
+        RobotInfo bestToDig = null;
+        Direction bestDirToDig = null;
+        for (final RobotInfo robot : nearby) {
+            if (robot.type.isBuilding() && robot.location.isAdjacentTo(rc.getLocation())) {
+                final Direction dir = rc.getLocation().directionTo(robot.location);
+                if (rc.canDigDirt(dir)) {
+                    if (bestToDig == null || robot.type == RobotType.HQ) {
+                        bestToDig = robot;
+                        bestDirToDig = dir;
+                    }
+                }
+            }
+        }
+
+        if (bestToDig == null) {
+            return BehaviorResult.FAIL;
+        }
+
+        rc.setIndicatorLine(rc.getLocation(), bestToDig.location, 0, 255, 0);
+        rc.digDirt(bestDirToDig);
+        return BehaviorResult.SUCCESS;
     }
 
     private static BehaviorResult sendScoutingInformation() throws GameActionException {
