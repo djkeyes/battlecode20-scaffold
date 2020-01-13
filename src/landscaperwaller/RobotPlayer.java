@@ -5,6 +5,7 @@ import battlecode.common.*;
 import static battlecode.common.Direction.*;
 import static landscaperwaller.BugPathfinding.setTargetLocationWithoutReset;
 import static landscaperwaller.BugPathfinding.trySetTargetLocation;
+import static landscaperwaller.CommSys.DECENT_TRANSACTION_COST;
 import static landscaperwaller.SimplePathfinding.badPathFindTo;
 
 public final strictfp class RobotPlayer {
@@ -28,6 +29,8 @@ public final strictfp class RobotPlayer {
 
     private static boolean isAggressiveLandscaper = false;
 
+    private static CommSys commSys;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -43,6 +46,8 @@ public final strictfp class RobotPlayer {
         final boolean enablePrinting = enablePrintingProp != null && enablePrintingProp.equals("true");
 
         savedSpawnLoc = rc.getLocation();
+        commSys = new CommSys(rc);
+        CommSys.Key = new int[]{387285905, 1711325412, 1082226531, -1491548669, -629252741, -146463724, -308629887,};
 
         try {
             switch (rc.getType()) {
@@ -140,8 +145,10 @@ public final strictfp class RobotPlayer {
     private static void initDeliveryDrone() {
     }
 
-    private static void initLandscaper() {
+    private static void initLandscaper() throws GameActionException {
         isAggressiveLandscaper = rc.getRoundNum() < 100;
+
+        commSys.ReadNews(5000);
     }
 
     private static void initFulfillmentCenter() {
@@ -159,10 +166,12 @@ public final strictfp class RobotPlayer {
     private static void initMiner() {
     }
 
-    private static void initHQ() {
+    private static void initHQ() throws GameActionException {
+        commSys.broadcastLocs(CommSys.NEWS_OUR_HQ_LOC, rc.getLocation());
     }
 
     static void runHQ() throws GameActionException {
+        commSys.ReadNews(10000);
 
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         final RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
@@ -461,15 +470,21 @@ public final strictfp class RobotPlayer {
     }
 
     static void runLandscaper() throws GameActionException {
+        commSys.ReadNews(5000);
+
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         if (cachedHqLocation == null) {
-            final RobotInfo hq = findNearestByType(nearby, RobotType.HQ);
-            if (hq == null) {
-                // can't do much else
-                randomlyExplore();
-                return;
+            if (commSys.Our_HQ != null) {
+                cachedHqLocation = commSys.Our_HQ;
             } else {
-                cachedHqLocation = hq.location;
+                final RobotInfo hq = findNearestByType(nearby, RobotType.HQ);
+                if (hq != null) {
+                    cachedHqLocation = hq.location;
+                } else {
+                    // can't do much else
+                    randomlyExplore();
+                    return;
+                }
             }
         }
 
@@ -478,6 +493,9 @@ public final strictfp class RobotPlayer {
         }
 
         if (isAggressiveLandscaper) {
+            if (sendScoutingInformation() != BehaviorResult.FAIL) {
+                return;
+            }
             if (attackEnemyHq() != BehaviorResult.FAIL) {
                 return;
             }
@@ -554,6 +572,51 @@ public final strictfp class RobotPlayer {
             }
         }
     }
+
+    private static BehaviorResult sendScoutingInformation() throws GameActionException {
+        if (commSys.Enemy_HQ != null) {
+            return BehaviorResult.FAIL;
+        }
+        if (rc.getCooldownTurns() >= 1.f) {
+            return BehaviorResult.POSTPONED;
+        }
+
+        if (MapSymmetry.getNumSymmetriesPossible() == 1) {
+            for (int i = 0; i < 3; ++i) {
+                if (MapSymmetry.isSymmetryPossible(i)) {
+                    final MapLocation location = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
+                    if (rc.getTeamSoup() >= DECENT_TRANSACTION_COST) {
+                        commSys.broadcastLocs(CommSys.NEWS_ENEMY_HQ_FOUND, location);
+                        return BehaviorResult.SUCCESS;
+                    } else {
+                        return BehaviorResult.POSTPONED;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < 3; ++i) {
+                if (MapSymmetry.isSymmetryPossible(i)) {
+                    final MapLocation location = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
+                    if (rc.getLocation().distanceSquaredTo(location) <= rc.getCurrentSensorRadiusSquared()) {
+                        final RobotInfo robot = rc.senseRobotAtLocation(attackTarget);
+                        if (robot == null || robot.type != RobotType.HQ) {
+                            MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
+                        } else {
+                            if (rc.getTeamSoup() >= DECENT_TRANSACTION_COST) {
+                                MapSymmetry.setSymmetry(lastSymmetryAssumption);
+                                commSys.broadcastLocs(CommSys.NEWS_ENEMY_HQ_FOUND, robot.location);
+                                return BehaviorResult.SUCCESS;
+                            } else {
+                                return BehaviorResult.POSTPONED;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return BehaviorResult.FAIL;
+    }
+
 
     private static BehaviorResult attackEnemyHq() throws GameActionException {
         // TODO: detect HQ in other ways, e.g. via blockchain
@@ -657,7 +720,23 @@ public final strictfp class RobotPlayer {
     }
 
     private static void chooseAttackTargetLocation() throws GameActionException {
-        boolean needToUpdateTarget = attackTarget == null;
+        if (commSys.Enemy_HQ != null) {
+            attackTarget = commSys.Enemy_HQ;
+            BugPathfinding.setTargetLocation(attackTarget);
+            lastAttackTargetTurn = rc.getRoundNum();
+            return;
+        }
+
+        boolean needToUpdateTarget = false;
+        if (attackTarget == null) {
+            // try to distribute different targets
+            lastSymmetryAssumption = rc.getRobotCount() % 3;
+            needToUpdateTarget = true;
+        }
+
+        if (!needToUpdateTarget && !MapSymmetry.isSymmetryPossible(lastSymmetryAssumption)) {
+            needToUpdateTarget = true;
+        }
 
         if (!needToUpdateTarget) {
             if (MapSymmetry.getNumSymmetriesPossible() > 1) {
@@ -665,7 +744,6 @@ public final strictfp class RobotPlayer {
                     final RobotInfo robot = rc.senseRobotAtLocation(attackTarget);
                     if (robot == null || robot.type != RobotType.HQ) {
                         MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
-
                         needToUpdateTarget = true;
                     } else {
                         MapSymmetry.setSymmetry(lastSymmetryAssumption);
@@ -680,9 +758,17 @@ public final strictfp class RobotPlayer {
 
         if (needToUpdateTarget) {
             // reset attack target
+            final int[] order;
+            if (lastSymmetryAssumption == 0) {
+                order = new int[]{2, 1, 0};
+            } else if (lastSymmetryAssumption == 1){
+                order = new int[]{2, 0, 1};
+            } else {
+                order = new int[]{0, 1, 2};
+            }
             int nextSymmetry = 0;
-            for (int i=1; i <=3; ++i) {
-                nextSymmetry = (lastSymmetryAssumption + i)%3;
+            for (final int i : order) {
+                nextSymmetry = i;
                 if (MapSymmetry.isSymmetryPossible(nextSymmetry)) {
                     break;
                 }

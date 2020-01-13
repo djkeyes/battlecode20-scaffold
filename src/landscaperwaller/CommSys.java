@@ -80,16 +80,7 @@ public class CommSys
     public static final int NEWS_DESIGN_SCHOOL_BUILT   =   3;
     public static final int NEWS_SOUP_FOUND            =   4;
     public static final int NEWS_SOUP_IS_OUT           =   5;
-    // When communication start
-    // This is to make sure that we can have different key for different opponents
-    // The getID() only return pseudo random number so the id a robot received is deterministic
-    // base on their spawn order, so if we just use getID(), the first robot Id will alwasy be the same
-    // and the same key will be obtained everytime
-    // however, different oppent have different strategy and different rate of spawning robots
-    // Thus let comm start on later round will result in a random id for our first robot
-    // It is not truly random, but because of the different in spawning strategy
-    // when we will likely get diffrent key from opponent to opponent 
-    public static final int COMM_START_ROUND            =   20;
+    public static final int NEWS_OUR_HQ_LOC            =   6;
     // Start communication when population is large enough
     // Again, this is also to add to the randomness of the key
 //    public static final int COMM_START_POPULATION       =   4;
@@ -99,9 +90,11 @@ public class CommSys
     private int CurrentRound;
     private Transaction[] Magazine;                 // Block added in the latest round
     private final RobotController robot;
-    private final DLinkedList<MapLocation> RefineryLocs;
-    private final DLinkedList<MapLocation> SoupLocs;
-    private MapLocation Enemy_HQ;
+
+    public final DLinkedList<MapLocation> RefineryLocs;
+    public final DLinkedList<MapLocation> SoupLocs;
+    public MapLocation Enemy_HQ;
+    public MapLocation Our_HQ;
 
     public static int DECENT_TRANSACTION_COST  = IMPORTANT_TRANSC_COST;     // Should implement a mechanism to find out the minimal cost for the message to be posted
 
@@ -120,10 +113,10 @@ public class CommSys
     *   Read the news on from the block chain
     *   This need to be called by the bot every round before they do anything
     */
-    public void ReadNews() throws GameActionException
+    public void ReadNews(final int bytecodeLimit) throws GameActionException
     {
         CurrentRound=robot.getRoundNum();
-        CatchUpPress();
+        CatchUpPress(bytecodeLimit);
     }
 
     // Input in a list of decoded messages
@@ -146,6 +139,7 @@ public class CommSys
                     else
                     {
                         Enemy_HQ=DecodeMapLocation(message[1]);
+                        robot.setIndicatorLine(robot.getLocation(), Enemy_HQ, 255, 0,0);
 //                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
                     }
                     break;
@@ -169,6 +163,9 @@ public class CommSys
                     tmp=DecodeMapLocation(message[1]);
                     SoupLocs.findNremove(tmp);
                     break;
+                case NEWS_OUR_HQ_LOC:
+                    Our_HQ=DecodeMapLocation(message[1]);
+                    break;
                 default:
 //                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
             }
@@ -179,37 +176,19 @@ public class CommSys
     // Increase the counter along the way
     // This will take a lot of time when the bot calls it the first time
     // However, once all the blocks are read, every time it only read 1 last block
-    private void CatchUpPress() throws GameActionException
+    private void CatchUpPress(final int bytecodeLimit) throws GameActionException
     {
-        if(CurrentRound<COMM_START_ROUND)
-        {
-            return;
-        }
 
-        ArrayList<int[]> DecodedMessage;
-
-        while(LastReadRound<CurrentRound)
+        while(LastReadRound<CurrentRound && Clock.getBytecodeNum() < bytecodeLimit)
         {
             // System.out.println(LastReadRound);
             Magazine=robot.getBlock(LastReadRound);       // Get the transactions
             if(isKeyAvailable())
             {
                 // Key is available, let's read
-                DecodedMessage=FilterMessage(Magazine);
+                final ArrayList<int[]> DecodedMessage = FilterMessage(Magazine);
 
-                switch(robot.getType())
-                {
-                    case HQ:
-                    case DESIGN_SCHOOL:
-                    case FULFILLMENT_CENTER:
-                    case NET_GUN:
-                    case VAPORATOR:
-                    case MINER:
-                    case LANDSCAPER:
-                    case DELIVERY_DRONE:
-                    ReadNExecute(DecodedMessage);
-                    break;
-                }
+                ReadNExecute(DecodedMessage);
             }
             LastReadRound++;
         }
