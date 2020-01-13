@@ -31,6 +31,8 @@ public final strictfp class RobotPlayer {
 
     private static CommSys commSys;
 
+    private static final int LANDSCAPERS_IN_PATTERN = 10;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -176,7 +178,7 @@ public final strictfp class RobotPlayer {
         final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
         final RobotInfo design = findNearestByType(nearby, RobotType.DESIGN_SCHOOL);
         final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
-        if (miners_built < 2 || (miners_built < 4 && design != null && landscapers.length >= 8) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
+        if (miners_built < 2 || (miners_built < 4 && design != null && landscapers.length >= LANDSCAPERS_IN_PATTERN) || rc.getTeamSoup() > 1.5 * RobotType.VAPORATOR.cost) {
             final BehaviorResult result = trySpawn(RobotType.MINER);
             if (result != BehaviorResult.FAIL) {
                 if (result == BehaviorResult.SUCCESS) {
@@ -377,7 +379,7 @@ public final strictfp class RobotPlayer {
         int closestDistSq = 100;
         final Direction[] candidateDirs;
         if (type == RobotType.DESIGN_SCHOOL) {
-            candidateDirs = new Direction[]{WEST}; //cardinalDirections;
+            candidateDirs = cardinalDirections; //cardinalDirections;
         } else if (type == RobotType.VAPORATOR) {
             candidateDirs = new Direction[]{NORTH}; //cardinalDirections;
         } else { // type == RobotType.NET_GUN
@@ -460,7 +462,7 @@ public final strictfp class RobotPlayer {
     static void runDesignSchool() throws GameActionException {
         final RobotInfo[] nearby = rc.senseNearbyRobots(rc.getCurrentSensorRadiusSquared(), rc.getTeam());
         final RobotInfo[] landscapers = findAllByType(nearby, RobotType.LANDSCAPER);
-        if (landscapers.length < 8) {
+        if (landscapers.length < LANDSCAPERS_IN_PATTERN) {
             trySpawn(RobotType.LANDSCAPER);
         }
     }
@@ -472,7 +474,7 @@ public final strictfp class RobotPlayer {
     static void runLandscaper() throws GameActionException {
         commSys.ReadNews(5000);
 
-        final RobotInfo[] nearby = rc.senseNearbyRobots(RobotType.MINER.sensorRadiusSquared, rc.getTeam());
+        final RobotInfo[] nearby = rc.senseNearbyRobots(rc.getCurrentSensorRadiusSquared(), rc.getTeam());
         if (cachedHqLocation == null) {
             if (commSys.Our_HQ != null) {
                 cachedHqLocation = commSys.Our_HQ;
@@ -502,73 +504,161 @@ public final strictfp class RobotPlayer {
             chooseAttackTargetLocation();
 
             BugPathfinding.pathfind();
+
+            // give up, if we're not attacking
+            if (rc.getRoundNum() > 500) {
+                isAggressiveLandscaper = false;
+            }
         } else {
-            // want to form a wall of size 5x5, with evenly spaced landscapers
-            // fill from one edge to the other
-            final int[][] offsets = {{2, 0}, {2, 2}, {2, -2}, {0, 2}, {0, -2}, {-2, 2}, {-2, -2}, {-2, 0}};
-            final int sensorRange = rc.getCurrentSensorRadiusSquared();
-            MapLocation last_unoccupied_location = cachedHqLocation.translate(offsets[offsets.length - 1][0],
-                    offsets[offsets.length - 1][1]);
-            for (final int[] offset : offsets) {
-                final MapLocation target = cachedHqLocation.translate(offset[0], offset[1]);
-                if (target.distanceSquaredTo(rc.getLocation()) <= sensorRange) {
-                    if (!rc.isLocationOccupied(target) || rc.getLocation().equals(target)) {
-                        last_unoccupied_location = target;
-                        break;
+            MapLocation adjDesignSchool = cachedHqLocation.add(WEST);
+            final RobotInfo[] designSchools = findAllByType(nearby, RobotType.DESIGN_SCHOOL);
+            for (final RobotInfo ds : designSchools) {
+                if (ds.location.isAdjacentTo(cachedHqLocation)) {
+                    adjDesignSchool = ds.location;
+                }
+            }
+
+            boolean isOnRing = false;
+            MapLocation furthestTile = null;
+            double furthestTileAngle = 0;
+            double curTileAngle = 0;
+            // want to form a wall of size 3x4, with evenly spaced landscapers<
+            // move away from the design school to make space
+            final Direction orientation = cachedHqLocation.directionTo(adjDesignSchool);
+            final int minX = -2;
+            final int maxX = 1;
+            final int minY = -1;
+            final int maxY = 1;
+            final int minRX;
+            final int maxRX;
+            final int minRY;
+            final int maxRY;
+            switch (orientation) {
+                case WEST:
+                    minRX = minX;
+                    maxRX = maxX;
+                    minRY = minY;
+                    maxRY = maxY;
+                    break;
+                case SOUTH:
+                    minRX = -maxY;
+                    maxRX = -minY;
+                    minRY = minX;
+                    maxRY = maxX;
+                    break;
+                case EAST:
+                    minRX = -maxX;
+                    maxRX = -minX;
+                    minRY = -maxY;
+                    maxRY = -minY;
+                    break;
+                case NORTH:
+                default:
+                    minRX = minY;
+                    maxRX = maxY;
+                    minRY = -maxX;
+                    maxRY = -minX;
+                    break;
+            }
+
+            for (int dx = minRX; dx <= maxRX; ++dx) {
+                for (int dy = minRY; dy <= maxRY; ++dy) {
+                    if (dx > minRX
+                            && dx < maxRX
+                            && dy > minRY
+                            && dy < maxRY) {
+                        continue;
+                    }
+                    final MapLocation tile = cachedHqLocation.translate(dx, dy);
+
+                    final double absAngle =
+                            Math.acos((orientation.dx * dx + orientation.dy * dy) / Math.sqrt(orientation.dx * orientation.dx + orientation.dy * orientation.dy) / Math.sqrt(dx * dx + dy * dy));
+
+                    if (absAngle > furthestTileAngle) {
+                        if (rc.getLocation().isAdjacentTo(tile) && rc.canMove(rc.getLocation().directionTo(tile))) {
+                            furthestTileAngle = absAngle;
+                            furthestTile = tile;
+                        }
+                    }
+
+                    if (rc.getLocation().equals(tile)) {
+                        isOnRing = true;
+                        curTileAngle = absAngle;
                     }
                 }
             }
-            if (rc.getLocation().equals(last_unoccupied_location)) {
-                // already there. start shoveling
-                if (rc.getDirtCarrying() > 0) {
-                    Direction lowestWall = null;
-                    int minWallHeight = 0;
-                    for (final Direction d : allDirections()) {
-                        final MapLocation tile = rc.getLocation().add(d);
-                        final int dx = Math.abs(tile.x - cachedHqLocation.x);
-                        final int dy = Math.abs(tile.y - cachedHqLocation.y);
-                        final boolean isWall = (dx == 2 || dy == 2) && (dx <= 2 && dy <= 2);
-                        if (!isWall) {
+            if (!isOnRing) {
+                BugPathfinding.trySetTargetLocation(cachedHqLocation);
+                BugPathfinding.pathfind();
+                return;
+            }
+
+            if (furthestTileAngle > curTileAngle && furthestTile != null) {
+                // consider moving to furthestTile
+                badPathFindTo(furthestTile);
+                return;
+            }
+
+            // already as far back as possible. start shoveling
+            if (rc.getDirtCarrying() > 0) {
+                Direction lowestWall = null;
+                int minWallHeight = 0;
+                for (final Direction d : allDirections()) {
+                    final MapLocation tile = rc.getLocation().add(d);
+                    final int dx = tile.x - cachedHqLocation.x;
+                    final int dy = tile.y - cachedHqLocation.y;
+                    final boolean isWall =
+                            (dx == minRX || dy == minRY || dx == maxRX || dy == maxRY)
+                                    && (minRX <= dx && dx <= maxRX && minRY <= dy && dy <= maxRY);
+                    if (!isWall) {
+                        continue;
+                    }
+                    if (!rc.canDepositDirt(d)) {
+                        continue;
+                    }
+
+                    final double absAngle =
+                            Math.acos((orientation.dx * dx + orientation.dy * dy) / Math.sqrt(orientation.dx * orientation.dx + orientation.dy * orientation.dy) / Math.sqrt(dx * dx + dy * dy));
+
+                    if (adjDesignSchool.isAdjacentTo(tile) || absAngle < curTileAngle) {
+                        final RobotInfo occupant = rc.senseRobotAtLocation(tile);
+                        if ((occupant == null || occupant.type != RobotType.LANDSCAPER || rc.getRoundNum() < 250) && rc.getRoundNum() < 750) {
+                            // we don't want to prevent other landscapers from joining
                             continue;
-                        }
-                        if (!rc.canDepositDirt(d)) {
-                            continue;
-                        }
-                        final int elevation = rc.senseElevation(tile);
-                        if (lowestWall == null || elevation < minWallHeight) {
-                            minWallHeight = elevation;
-                            lowestWall = d;
                         }
                     }
-                    if (lowestWall != null) {
-                        rc.depositDirt(lowestWall);
-                    }
-                } else {
-                    Direction highestTrough = null;
-                    int maxTroughHeight = 0;
-                    for (final Direction d : allDirections()) {
-                        final MapLocation tile = rc.getLocation().add(d);
-                        final int dx = Math.abs(tile.x - cachedHqLocation.x);
-                        final int dy = Math.abs(tile.y - cachedHqLocation.y);
-                        final boolean isTrough = (dx >= 3 || dy >= 3);
-                        if (!isTrough) {
-                            continue;
-                        }
-                        final int elevation = rc.senseElevation(tile);
-                        if (!rc.canDigDirt(d)) {
-                            continue;
-                        }
-                        if (highestTrough == null || elevation > maxTroughHeight) {
-                            maxTroughHeight = elevation;
-                            highestTrough = d;
-                        }
-                    }
-                    if (highestTrough != null) {
-                        rc.digDirt(highestTrough);
+                    final int elevation = rc.senseElevation(tile);
+                    if (lowestWall == null || elevation < minWallHeight) {
+                        minWallHeight = elevation;
+                        lowestWall = d;
                     }
                 }
+                if (lowestWall != null) {
+                    rc.depositDirt(lowestWall);
+                }
             } else {
-                badPathFindTo(last_unoccupied_location);
+                Direction highestTrough = null;
+                int maxTroughHeight = 0;
+                for (final Direction d : allDirections()) {
+                    final MapLocation tile = rc.getLocation().add(d);
+                    final int dx = tile.x - cachedHqLocation.x;
+                    final int dy = tile.y - cachedHqLocation.y;
+                    final boolean isTrough = (dx < minRX || dx > maxRX || dy < minRY || dy > maxRY);
+                    if (!isTrough) {
+                        continue;
+                    }
+                    final int elevation = rc.senseElevation(tile);
+                    if (!rc.canDigDirt(d)) {
+                        continue;
+                    }
+                    if (highestTrough == null || elevation > maxTroughHeight) {
+                        maxTroughHeight = elevation;
+                        highestTrough = d;
+                    }
+                }
+                if (highestTrough != null) {
+                    rc.digDirt(highestTrough);
+                }
             }
         }
     }
@@ -761,7 +851,7 @@ public final strictfp class RobotPlayer {
             final int[] order;
             if (lastSymmetryAssumption == 0) {
                 order = new int[]{2, 1, 0};
-            } else if (lastSymmetryAssumption == 1){
+            } else if (lastSymmetryAssumption == 1) {
                 order = new int[]{2, 0, 1};
             } else {
                 order = new int[]{0, 1, 2};
