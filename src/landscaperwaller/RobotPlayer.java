@@ -340,10 +340,10 @@ public final strictfp class RobotPlayer {
         // 3. find nearby net guns and vaporators
         // TODO: vaporators are super expensive (but pay for themselves in 150 turns). not worth it until we figure
         // out mining.
-        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
-        if (netGuns.length < 4) {
-            return pathToAndDoClusteredBuild(nearestHq.location, RobotType.NET_GUN);
-        }
+//        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
+//        if (netGuns.length < 4) {
+//            return pathToAndDoClusteredBuild(nearestHq.location, RobotType.NET_GUN);
+//        }
 //        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
 //        final RobotInfo[] vaporators = findAllByType(nearby, RobotType.VAPORATOR);
 //        if (netGuns.length < 4 || vaporators.length < 2) {
