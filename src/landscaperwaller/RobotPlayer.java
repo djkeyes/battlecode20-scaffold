@@ -49,7 +49,9 @@ public final strictfp class RobotPlayer {
 
         savedSpawnLoc = rc.getLocation();
         commSys = new CommSys(rc);
-        CommSys.Key = new int[]{387285905, 1711325412, 1082226531, -1491548669, -629252741, -146463724, -308629887,};
+        final int teamOrd = rc.getTeam().ordinal();
+        CommSys.Key = new int[]{387285905 + teamOrd, 1711325412 + teamOrd, 1082226531 + teamOrd, -1491548669 + teamOrd,
+                -629252741 + teamOrd, -146463724 + teamOrd, -308629887 + teamOrd,};
 
         try {
             switch (rc.getType()) {
@@ -340,10 +342,10 @@ public final strictfp class RobotPlayer {
         // 3. find nearby net guns and vaporators
         // TODO: vaporators are super expensive (but pay for themselves in 150 turns). not worth it until we figure
         // out mining.
-        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
-        if (netGuns.length < 4) {
-            return pathToAndDoClusteredBuild(nearestHq.location, RobotType.NET_GUN);
-        }
+//        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
+//        if (netGuns.length < 4) {
+//            return pathToAndDoClusteredBuild(nearestHq.location, RobotType.NET_GUN);
+//        }
 //        final RobotInfo[] netGuns = findAllByType(nearby, RobotType.NET_GUN);
 //        final RobotInfo[] vaporators = findAllByType(nearby, RobotType.VAPORATOR);
 //        if (netGuns.length < 4 || vaporators.length < 2) {
@@ -491,6 +493,10 @@ public final strictfp class RobotPlayer {
         }
 
         if (rc.getCooldownTurns() >= 1.f) {
+            return;
+        }
+
+        if (defendAdjacentBuildings(nearby) != BehaviorResult.FAIL) {
             return;
         }
 
@@ -663,6 +669,34 @@ public final strictfp class RobotPlayer {
         }
     }
 
+    private static BehaviorResult defendAdjacentBuildings(final RobotInfo[] nearby) throws GameActionException {
+        if (rc.getDirtCarrying() == rc.getType().dirtLimit) {
+            return BehaviorResult.FAIL;
+        }
+
+        RobotInfo bestToDig = null;
+        Direction bestDirToDig = null;
+        for (final RobotInfo robot : nearby) {
+            if (robot.type.isBuilding() && robot.location.isAdjacentTo(rc.getLocation())) {
+                final Direction dir = rc.getLocation().directionTo(robot.location);
+                if (rc.canDigDirt(dir)) {
+                    if (bestToDig == null || robot.type == RobotType.HQ) {
+                        bestToDig = robot;
+                        bestDirToDig = dir;
+                    }
+                }
+            }
+        }
+
+        if (bestToDig == null) {
+            return BehaviorResult.FAIL;
+        }
+
+        rc.setIndicatorLine(rc.getLocation(), bestToDig.location, 0, 255, 0);
+        rc.digDirt(bestDirToDig);
+        return BehaviorResult.SUCCESS;
+    }
+
     private static BehaviorResult sendScoutingInformation() throws GameActionException {
         if (commSys.Enemy_HQ != null) {
             return BehaviorResult.FAIL;
@@ -688,7 +722,7 @@ public final strictfp class RobotPlayer {
                 if (MapSymmetry.isSymmetryPossible(i)) {
                     final MapLocation location = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
                     if (rc.getLocation().distanceSquaredTo(location) <= rc.getCurrentSensorRadiusSquared()) {
-                        final RobotInfo robot = rc.senseRobotAtLocation(attackTarget);
+                        final RobotInfo robot = rc.senseRobotAtLocation(location);
                         if (robot == null || robot.type != RobotType.HQ) {
                             MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
                         } else {
