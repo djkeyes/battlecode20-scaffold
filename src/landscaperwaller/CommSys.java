@@ -139,7 +139,6 @@ public class CommSys
                     else
                     {
                         Enemy_HQ=DecodeMapLocation(message[1]);
-                        robot.setIndicatorLine(robot.getLocation(), Enemy_HQ, 255, 0,0);
 //                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
                     }
                     break;
