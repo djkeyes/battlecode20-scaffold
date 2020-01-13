@@ -12,13 +12,17 @@ import static maps.MapGenUtils.addRectangleSoup;
 /**
  * Generate a map.
  */
-public final class DroneSwampTesting {
+public final class DroneSwarmTesting {
 
     private static final int DRONE_COUNT   =   4;
     private static final int X_LOCATION    =   3;
     private static final int Y_LOCATION    =   12;
     private static final int DELTA_LOCATION    =   5;
     private static int MY_COUNTER=20;
+    private static final Team MY_TEAM   = Team.A;
+    private static final Team ENEMY_TEAM   = Team.B;
+    private static final MapLocation HQ_LOCATION    =   new MapLocation(7,22);
+    private static final MapLocation FULFILLMENT_CENTER_LOCATION   =   new MapLocation(2,2);
     // change this!!!
     // this needs to be the same as the name of the file
     // it also cannot be the same as the name of an existing engine map
@@ -46,7 +50,8 @@ public final class DroneSwampTesting {
         final MapBuilder mapBuilder = new MapBuilder(mapName, width, height, 148);
         mapBuilder.setWaterLevel(0);
         mapBuilder.setSymmetry(MapBuilder.MapSymmetry.rotational);
-        mapBuilder.addSymmetricHQ(13, 13);
+        mapBuilder.addSymmetricHQ(HQ_LOCATION.x, HQ_LOCATION.y);
+        addSymmetricFC(mapBuilder,FULFILLMENT_CENTER_LOCATION.x, FULFILLMENT_CENTER_LOCATION.y);
 
         // make a ramp starting from the middle
 
@@ -81,13 +86,31 @@ public final class DroneSwampTesting {
         mapBuilder.saveMap(outputDirectory);
     }
 
-    private static void addDrone(MapBuilder mapBuilder, int x,int y)
+    private static void addSymmetricFC(MapBuilder mapBuilder, int x, int y)
     {
-        mapBuilder.addRobot(++MY_COUNTER,Team.A,RobotType.DELIVERY_DRONE,new MapLocation(x,y));
+        addFullfillmentCenter(mapBuilder,x,y,MY_TEAM);
+        addFullfillmentCenter(mapBuilder,mapBuilder.symmetricX(x),mapBuilder.symmetricY(y),ENEMY_TEAM);
+    }
+
+    private static void addDrone(MapBuilder mapBuilder, int x,int y, Team team)
+    {
+        mapBuilder.addRobot(++MY_COUNTER,team,RobotType.DELIVERY_DRONE,new MapLocation(x,y));
+    }
+
+    private static void addFullfillmentCenter(MapBuilder mapBuilder, int x,int y, Team team)
+    {
+        mapBuilder.addRobot(++MY_COUNTER,team,RobotType.FULFILLMENT_CENTER,new MapLocation(x,y));
     }
 
     private static void addMyThings(MapBuilder mapBuilder)
     {
-        addDrone(mapBuilder,X_LOCATION,Y_LOCATION);
+        for(int i=0;i<DELTA_LOCATION;i++)
+        {
+            for(int j=0;j<DELTA_LOCATION;j++)
+            {
+                addDrone(mapBuilder,X_LOCATION+i,Y_LOCATION+j,MY_TEAM);
+            }
+        }
+
     }
 }
