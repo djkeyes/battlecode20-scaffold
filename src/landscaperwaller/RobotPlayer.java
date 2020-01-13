@@ -49,7 +49,9 @@ public final strictfp class RobotPlayer {
 
         savedSpawnLoc = rc.getLocation();
         commSys = new CommSys(rc);
-        CommSys.Key = new int[]{387285905, 1711325412, 1082226531, -1491548669, -629252741, -146463724, -308629887,};
+        final int teamOrd = rc.getTeam().ordinal();
+        CommSys.Key = new int[]{387285905 + teamOrd, 1711325412 + teamOrd, 1082226531 + teamOrd, -1491548669 + teamOrd,
+                -629252741 + teamOrd, -146463724 + teamOrd, -308629887 + teamOrd,};
 
         try {
             switch (rc.getType()) {
