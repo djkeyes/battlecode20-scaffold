@@ -120,7 +120,7 @@ public class CommSys
     *   Read the news on from the block chain
     *   This need to be called by the bot every round before they do anything
     */
-    public void ReadNews()
+    public void ReadNews() throws GameActionException
     {
         CurrentRound=robot.getRoundNum();
         CatchUpPress();
@@ -135,23 +135,23 @@ public class CommSys
         for(int i=0;i<orderStack.size();i++)
         {
             message=orderStack.get(i);
-            System.out.println("MESSAGE_CODE = "+message[0]);
+//            System.out.println("MESSAGE_CODE = "+message[0]);
             switch(message[0])
             {
                 case NEWS_ENEMY_HQ_FOUND:
                     if(Enemy_HQ!=null)
                     {
-                        System.out.println("Second Enemy_HQ found, something is wrong");
+//                        System.out.println("Second Enemy_HQ found, something is wrong");
                     }
                     else
                     {
                         Enemy_HQ=DecodeMapLocation(message[1]);
-                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
+//                        System.out.println("Enemy_HQ found at ["+Enemy_HQ.x+","+Enemy_HQ.y+"]");
                     }
                     break;
                 case NEWS_REFINERY_BUILT:
                     tmp=DecodeMapLocation(message[1]);
-                    System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
+//                    System.out.println("Refinery found at ["+tmp.x+","+tmp.y+"]");
                     if(RefineryLocs.isNew(tmp))
                     {
                         RefineryLocs.add(tmp);
@@ -159,7 +159,7 @@ public class CommSys
                     break;
                 case NEWS_SOUP_FOUND:
                     tmp=DecodeMapLocation(message[1]);
-                    System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
+//                    System.out.println("Soup found at ["+tmp.x+","+tmp.y+"]");
                     if(SoupLocs.isNew(tmp))
                     {
                         SoupLocs.add(tmp);
@@ -170,7 +170,7 @@ public class CommSys
                     SoupLocs.findNremove(tmp);
                     break;
                 default:
-                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
+//                    System.out.println("ALERT: ENEMY JAMMING IN EFFECTS");
             }
         }
     }
@@ -179,7 +179,7 @@ public class CommSys
     // Increase the counter along the way
     // This will take a lot of time when the bot calls it the first time
     // However, once all the blocks are read, every time it only read 1 last block
-    private void CatchUpPress()
+    private void CatchUpPress() throws GameActionException
     {
         if(CurrentRound<COMM_START_ROUND)
         {
@@ -191,16 +191,7 @@ public class CommSys
         while(LastReadRound<CurrentRound)
         {
             // System.out.println(LastReadRound);
-            try
-            {
-                Magazine=robot.getBlock(LastReadRound);       // Get the transactions
-            }
-            catch(GameActionException e)
-            {
-                System.out.println("Cannot get block for round "+LastReadRound);
-                // What can go wrong with this?
-                // System.out.println(e.getMessage());
-            }
+            Magazine=robot.getBlock(LastReadRound);       // Get the transactions
             if(isKeyAvailable())
             {
                 // Key is available, let's read
@@ -229,7 +220,7 @@ public class CommSys
     // or is no key because there is no first block?
     // place a transaction to create the first block, might be it become our key
     // Increase counter
-    private boolean isKeyAvailable()
+    private boolean isKeyAvailable() throws GameActionException
     {
         if(Key!=null)
         {
@@ -243,12 +234,12 @@ public class CommSys
                 Key=Magazine[0].getMessage();       // Save as the key then
 
                 // Printing the key
-                System.out.print("Obtained Key - ");
-                for(int i=0;i<Key.length;i++)
-                {
-                    System.out.print(Key[i] + " ");
-                }
-                System.out.println();
+//                System.out.print("Obtained Key - ");
+//                for(int i=0;i<Key.length;i++)
+//                {
+//                    System.out.print(Key[i] + " ");
+//                }
+//                System.out.println();
 
                 // Also, take off the first transaction so that ReadMessage won't read this again
                 // HOW???
@@ -278,18 +269,18 @@ public class CommSys
 
     // messeageCode is one of the constant used for indicating the identity
     // Ex: for enemy's HQ, NEWS_ENEMY_HQ_FOUND
-    public void broadcastLocs(int messageCode, MapLocation loc)
+    public void broadcastLocs(final int messageCode, final MapLocation loc) throws GameActionException
     {
         broadcastLocs(messageCode,loc.x,loc.y);
     }
 
-    public void broadcastLocs(final int messageCode, final int x, final int y)
+    public void broadcastLocs(final int messageCode, final int x, final int y) throws GameActionException
     {
         final int[] news=new int[]{messageCode,EncodeMapLocation(x,y)};
         send(news,DECENT_TRANSACTION_COST);
     }
 
-    public void broadcastUnitLocs(final RobotInfo rb)
+    public void broadcastUnitLocs(final RobotInfo rb) throws GameActionException
     {
         // Currently only building Unit is here
         final RobotType unit_Type=rb.getType();
@@ -299,7 +290,7 @@ public class CommSys
             switch(unit_Type)
             {
                 case HQ:
-                    System.out.println("Broadcasting Enemy HQ location");
+//                    System.out.println("Broadcasting Enemy HQ location");
                     broadcastLocs(NEWS_ENEMY_HQ_FOUND,rb.getLocation());
                     break;
             }
@@ -309,11 +300,11 @@ public class CommSys
             switch(unit_Type)
             {
                 case REFINERY:
-                    System.out.println("Broadcasting newly built Refinery");
+//                    System.out.println("Broadcasting newly built Refinery");
                     broadcastLocs(NEWS_REFINERY_BUILT,rb.getLocation());
                     break;
                 case DESIGN_SCHOOL:
-                    System.out.println("Broadcasting newly built DESIGN_SCHOOL");
+//                    System.out.println("Broadcasting newly built DESIGN_SCHOOL");
                     broadcastLocs(NEWS_DESIGN_SCHOOL_BUILT,rb.getLocation());
                     break;
             }
@@ -321,36 +312,24 @@ public class CommSys
 
     }
 
-    public boolean send(final int[] message)
+    public boolean send(final int[] message) throws GameActionException
     {
         return send(message,DECENT_TRANSACTION_COST);
     }
 
-    public boolean send(final int[] message, final int bid)
+    public boolean send(final int[] message, final int bid) throws GameActionException
     {
-        try
+        final int[] encodedMessage=EncodeMessage(message);
+        if(robot.canSubmitTransaction(encodedMessage,bid))
         {
-            final int[] encodedMessage=EncodeMessage(message);
-            if(robot.canSubmitTransaction(encodedMessage,bid))
-            {
-                robot.submitTransaction(encodedMessage,bid);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            robot.submitTransaction(encodedMessage,bid);
+            return true;
         }
-        catch(final GameActionException e)
+        else
         {
-            System.out.println("Having trouble submitting transaction");
             return false;
         }
-        catch(final IllegalStateException e)
-        {
-            System.out.println("Encoding message failed, maybe because of no key?");
-            return false;
-        }
+
     }
 
     /*
@@ -383,7 +362,7 @@ public class CommSys
                 }
                 else
                 {
-                    System.out.println("Checksum unmatch");
+//                    System.out.println("Checksum unmatch");
                     return null;
                 }
             }
@@ -395,7 +374,7 @@ public class CommSys
                 }
                 else
                 {
-                    System.out.println("Checksum unmatched.");
+//                    System.out.println("Checksum unmatched.");
                     return null;
                 }
             }
@@ -406,7 +385,7 @@ public class CommSys
     // Send in a random message to be the first transaction
     // return true if send succesfully
     // false otherwise
-    private void SendInFirstTrans()
+    private void SendInFirstTrans() throws GameActionException
     {
 
         if(robot.getType()==RobotType.HQ)
@@ -424,14 +403,7 @@ public class CommSys
 
             if(robot.canSubmitTransaction(randMess,UNIMPORTANT_TRANSC_COST))
             {
-                try
-                {
-                    robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
-                }
-                catch(GameActionException e)
-                {
-                    // Do what here?
-                }
+                robot.submitTransaction(randMess,UNIMPORTANT_TRANSC_COST);
             }
             else
             {
@@ -493,7 +465,6 @@ public class CommSys
     {
         if(Key==null)
         {
-            System.out.println("No key, no Encoding!");
             throw(new IllegalStateException());
         }
 
