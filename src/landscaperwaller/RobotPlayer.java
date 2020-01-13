@@ -720,7 +720,7 @@ public final strictfp class RobotPlayer {
                 if (MapSymmetry.isSymmetryPossible(i)) {
                     final MapLocation location = MapSymmetry.getSymmetricCoords(rc, cachedHqLocation, i);
                     if (rc.getLocation().distanceSquaredTo(location) <= rc.getCurrentSensorRadiusSquared()) {
-                        final RobotInfo robot = rc.senseRobotAtLocation(attackTarget);
+                        final RobotInfo robot = rc.senseRobotAtLocation(location);
                         if (robot == null || robot.type != RobotType.HQ) {
                             MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
                         } else {
