@@ -1,0 +1,997 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ab",
+				"abstract"
+			],
+			[
+				"D",
+				"DLinkedList\t(LinkedList.java)"
+			],
+			[
+				"CIR",
+				"CIRCLING_MY_TEAM_HQ\tabc"
+			],
+			[
+				"Act",
+				"activity"
+			],
+			[
+				"next",
+				"nextMove\tabc"
+			],
+			[
+				"nex",
+				"nextMove\tabc"
+			],
+			[
+				"direction",
+				"directionTo\tabc"
+			],
+			[
+				"get",
+				"getClass\t(DroneSwarmTesting.java)"
+			],
+			[
+				"disRo",
+				"distRoRight\tabc"
+			],
+			[
+				"distRo",
+				"distRoLeft\tabc"
+			],
+			[
+				"getDelta",
+				"getDeltaY\tabc"
+			],
+			[
+				"SOUTH",
+				"SOUTHWEST\t(RobotPlayer.java)"
+			],
+			[
+				"NORT",
+				"NORTH\tabc"
+			],
+			[
+				"NOR",
+				"NORTH\tabc"
+			],
+			[
+				"center",
+				"centerLocation\tabc"
+			],
+			[
+				"direc",
+				"directionTo\t(RobotPlayer.java)"
+			],
+			[
+				"getMap",
+				"getMapHeight\t(RobotPlayer.java)"
+			],
+			[
+				"getMa",
+				"getMapWidth\t(RobotPlayer.java)"
+			],
+			[
+				"Ill",
+				"IllegalArgumentException"
+			],
+			[
+				"cen",
+				"centerLocation\tabc"
+			],
+			[
+				"Cir",
+				"Circling\tabc"
+			],
+			[
+				"Ma",
+				"MapLocation\tabc"
+			],
+			[
+				"enem",
+				"enemyHQLoc\tabc"
+			],
+			[
+				"ene",
+				"enemyHQ\tabc"
+			],
+			[
+				"myHQ",
+				"myHQLoc\tabc"
+			],
+			[
+				"ENM",
+				"ENEMY_TEAM_HQ\tabc"
+			],
+			[
+				"Robo",
+				"RobotController\tabc"
+			],
+			[
+				"EN",
+				"ENEMY_TEAM\tabc"
+			],
+			[
+				"addSy",
+				"addSymmetricHQ\tabc"
+			],
+			[
+				"pri",
+				"private"
+			],
+			[
+				"HQ",
+				"HQ_LOCATION\tabc"
+			],
+			[
+				"SYs",
+				"System.out.println\t(CommSys.java)"
+			],
+			[
+				"Ss",
+				"System.out.println\t(CommSys.java)"
+			],
+			[
+				"DEL",
+				"DecodeMapLocation\t(CommSys.java)"
+			],
+			[
+				"targe",
+				"targetList\tabc"
+			],
+			[
+				"pic",
+				"pickTarget\tabc"
+			],
+			[
+				"Type",
+				"RobotType"
+			],
+			[
+				"Syste",
+				"System.out.println\t(CommSys.java)"
+			],
+			[
+				"Ille",
+				"IllegalArgumentException"
+			],
+			[
+				"mapBU",
+				"mapBuilder,i+X_LOCATION,i+Y_LOCATION\tabc"
+			],
+			[
+				"R",
+				"Random\tabc"
+			],
+			[
+				"Dro",
+				"DRONE_COUNT\tabc"
+			],
+			[
+				"DR",
+				"DELIVERY_DRONE\t(RobotPlayer.java)"
+			],
+			[
+				"System",
+				"System.out.println\tabc"
+			],
+			[
+				"Com",
+				"CommTest\tabc"
+			],
+			[
+				"Decod",
+				"Decode\tabc"
+			],
+			[
+				"DECODE",
+				"DECODE_EVEN\tabc"
+			],
+			[
+				"decode",
+				"decoded\tabc"
+			],
+			[
+				"NEWS",
+				"NEWS_SOUP_FOUND\t(CommSys.java)"
+			],
+			[
+				"brao",
+				"broadcastLocs\t(CommSys.java)"
+			],
+			[
+				"COM",
+				"COMM_START_POPULATION\tabc"
+			],
+			[
+				"getT",
+				"getType\tabc"
+			],
+			[
+				"mess",
+				"message\tabc"
+			],
+			[
+				"mes",
+				"message\tabc"
+			],
+			[
+				"odd",
+				"odd_mask\tabc"
+			],
+			[
+				"Sys",
+				"System.out.println\tabc"
+			],
+			[
+				"sw",
+				"switch\tabc"
+			],
+			[
+				"Re",
+				"REFINERY\t(RobotPlayer.java)"
+			],
+			[
+				"rob",
+				"RobotType"
+			],
+			[
+				"DEC",
+				"DECENT_TRANSACTION_COST\tabc"
+			],
+			[
+				"EncodM",
+				"EncodeMapLocation\tabc"
+			],
+			[
+				"broad",
+				"broadcastLocs\tabc"
+			],
+			[
+				"GAM",
+				"GameActionException\tabc"
+			],
+			[
+				"MAp",
+				"MapLocation\tabc"
+			],
+			[
+				"Illegal",
+				"IllegalStateException"
+			],
+			[
+				"ENCO",
+				"ENCODE_ODD\tabc"
+			],
+			[
+				"ENCOD",
+				"ENCODE_EVEN\tabc"
+			],
+			[
+				"Enco",
+				"Encode1\tabc"
+			],
+			[
+				"me",
+				"message\tabc"
+			],
+			[
+				"ENEM",
+				"NEWS_ENEMY_HQ_FOUND"
+			],
+			[
+				"random",
+				"randomlyExplore\tabc"
+			],
+			[
+				"Co",
+				"Com\tabc"
+			],
+			[
+				"H",
+				"HQ"
+			],
+			[
+				"GameA",
+				"GameActionException\tabc"
+			],
+			[
+				"Game",
+				"GameActionException\tabc"
+			],
+			[
+				"PLAN",
+				"PLAN_1_CHECK_SUM_MASK_ODD\tabc"
+			],
+			[
+				"Check",
+				"CheckSum\tabc"
+			],
+			[
+				"DECO",
+				"DECODE_EVEN\tabc"
+			],
+			[
+				"ord",
+				"orderStack\tabc"
+			],
+			[
+				"has",
+				"hasNext\t(LinkedList.java)"
+			],
+			[
+				"va",
+				"value\tabc"
+			],
+			[
+				"MAP",
+				"MAP_DECODE_X_MASK\tabc"
+			],
+			[
+				"Gam",
+				"GameActionException\tabc"
+			],
+			[
+				"Rea",
+				"ReadNews\tabc"
+			],
+			[
+				"PLAN1",
+				"PLAN_1_CHECK_SUM_MASK_EVEN\tabc"
+			],
+			[
+				"MAX",
+				"MAX_CLOSEDLOOP_FREQUENCY\tabc"
+			],
+			[
+				"SA_CTL_PKEY",
+				"SA_CTL_PKEY_MAX_CL_FREQUENCY\tabc"
+			],
+			[
+				"MAX_",
+				"MAX_CLOSEDLOOP_FREQUENCY\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"max",
+				"MAX_CL_FREQ"
+			],
+			[
+				"CMD_Set",
+				"CMD_SetControllerInternals\tabc"
+			],
+			[
+				"SCAN",
+				"SCAN_RATE\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"STEP",
+				"STEP_FREQ\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"Get",
+				"GetPropi32\tabc"
+			],
+			[
+				"Move",
+				"MOVE_MODE\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"fie",
+				"fields\tabc"
+			],
+			[
+				"SA",
+				"SA_CTL_Result_t\tabc"
+			],
+			[
+				"SA_CTL",
+				"SA_CTL_Result_t\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"CMD",
+				"CMDdHandle\tabc"
+			],
+			[
+				"ui",
+				"uint64_t\tabc"
+			],
+			[
+				"uin",
+				"uint32_t\tabc"
+			],
+			[
+				"uint",
+				"uint64_t\tabc"
+			],
+			[
+				"CHN",
+				"CHANNEL_OPEN_ERROR\tabc"
+			],
+			[
+				"Ha",
+				"Handle\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"Wait",
+				"WaitForDAQ\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"Create",
+				"CreateCMDThread\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"Read",
+				"ReadMessage\tabc"
+			],
+			[
+				"Last",
+				"LastReadRound==CurrentRound-1\tabc"
+			],
+			[
+				"last",
+				"lastReadRound\tabc"
+			],
+			[
+				"curr",
+				"currentRound\tabc"
+			],
+			[
+				"checksum",
+				"checksum1\tabc"
+			],
+			[
+				"DAQ_POS",
+				"DAQ_POSITION_SOURCE\tabc"
+			],
+			[
+				"DAQ_POSI",
+				"DAQ_POSITION_OUTPUT_FILE_NAME\tabc"
+			],
+			[
+				"print",
+				"printParaConf\t(CMD_HSD_DAQ_run.cpp)"
+			],
+			[
+				"fin",
+				"finalConf\tabc"
+			],
+			[
+				"wind",
+				"windows.h\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"name",
+				"namespace\t(CMD_HSD_DAQ_run.h)"
+			],
+			[
+				"CMD_H",
+				"CMD_HSD_DAQ_run\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"CMD_HSD_",
+				"CMD_HSD_DAQ.h\t(CMD_HSD_DAQ_run.cpp)"
+			],
+			[
+				"OUTPU",
+				"OUTPUT_POSITION_FILE_EXT\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"bei",
+				"befileName\tabc"
+			],
+			[
+				"end",
+				"endfileName\tabc"
+			],
+			[
+				"enfile",
+				"endfileName\tabc"
+			],
+			[
+				"DAQ_FREQ",
+				"DAQ_FREQUENCY\tabc"
+			],
+			[
+				"UNSET",
+				"UNSET_NUMERICAL_FIELD\t(CMD_HSD_DAQ.h)"
+			],
+			[
+				"user",
+				"user_para\tabc"
+			],
+			[
+				"fiel",
+				"fieldName\tabc"
+			],
+			[
+				"filed",
+				"fieldName\tabc"
+			],
+			[
+				"DAQ_T",
+				"DAQ_TARGET_SOURCE\tabc"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Activity.java",
+			"settings":
+			{
+				"buffer_size": 1103,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "MinerActivity.java",
+			"settings":
+			{
+				"buffer_size": 159,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "RobotPlayer.java",
+			"settings":
+			{
+				"buffer_size": 37112,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 157.0,
+		"history":
+		[
+			"f",
+			"__doc__",
+			"__main__",
+			"dir",
+			"for i in range(4):",
+			"a +1",
+			"a =1",
+			"a",
+			"exit",
+			"help",
+			"ls",
+			"git"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/Util.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/SmartMinerController.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/SimplePathfinding.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/MapSymmetry.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/LinkedList.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/CommSys.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/BugPathfinding.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/BooleanGrid.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/Activity.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/BehaviorResult.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/MinerActivity.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/RobotPlayer.java",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/StrUtils.cpp",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/DAQ_Thread.cpp",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/CMD_HSD_DAQ_run.cpp",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/CMD_HSD_DAQ.h",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/CMD_HSD_DAQ_run.h",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/DAQ_Thread.h",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/StrUtils.h",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/CMD_HSD_DAQ.sublime-workspace",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/QuickCommit",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/QuickCommit.pub",
+		"/C/Users/Admin/Desktop/Working/fastz-smaract/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/.sublime-project",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/DroneController.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/SmartMiner/SmartMinerActivity.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/RobotPlayer.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/LinkedList.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/DroneSwarmTesting.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/BugPathfinding.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/MapSymmetry.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/BooleanGrid.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/BehaviorResult.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/SimplePathfinding.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/DroneSwarn/Util.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/MiniBitMapUtils.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/RobotPlayer.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/CommSys.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/NetGunRadarTesting.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/landscaperwaller/RobotPlayer.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/LinkedList.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/Small.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/CheckerboardA.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/RandomSoup1.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/maps/MapGenUtils.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/maps/Small.map20",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/TestUtils.java",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/addingComm/TestComm.java",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/CMD_HSD_DAQ.h",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/CMD_HSD_DAQ_run.h",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/inc/StrUtils.h",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/CMD_HSD_DAQ_run.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/StrUtils.cpp",
+		"/C/Users/Admin/Desktop/Working/battlecode20-scaffold/src/examplefuncsplayer/RobotPlayer.java",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/config/test1.conf",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/config/default.conf",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/sourcecode/src/StrUntils.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/TestCommandGroupMoveOverwrite/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/SmarAct/MCS2/SDK/examples/2_HSDRExample_Streaming/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/drivescript/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/drivescript/example.drsc",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/config/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/SmarAct/MCS2/SDK/examples/2_HSDRExample_Streaming/HSDRExample_Streaming.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/CMD_HSD_DAQ/output/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/HSD_DAQ/HSD_DAQ.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Utilities/HSD_DAQ/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/MeasuringUSBLatency/MeasureUSBLatency.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/TestCommandGroupMoveOverwrite/TestCommandGroupMoveOverwrite.cpp",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/MeasuringUSBLatency/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/TestCommandGroupMoveOverwrite/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/TestCommandGroupReusability/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/MCS2_Testing/TestCommandGroupReusability/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/Testing/TestCommandGroupReusability/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/Testing/TestCommandGroupReusability/Readme.md",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/Testing/TestCommandGroupReusability/TestCommandGroupReusability.c",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/SmarAct/MCS2/SDK/examples/6_MCS2Example_CommandGroups/MCS2Example_CommandGroups.c",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/Testing/MeasuringUSBLatency/Makefile",
+		"/C/Users/Admin/Desktop/Working/KerlinLab/Microscope_Stage/Code/Testing/TestCommandGroupReuseablity/TestCommandGroupReusability.c"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"CreateDAQ",
+			"/*",
+			"Crea",
+			"CreateDAQ",
+			"runNet",
+			"runNetGun",
+			"minD",
+			"rc",
+			"}",
+			"isNew",
+			"new",
+			"send(int[] message,int bid)",
+			"bid",
+			"send(",
+			"send()",
+			"return false",
+			"Key",
+			"key",
+			"checksum1Nextract",
+			"EncodeMessage",
+			"send",
+			"DECODE_EVEN",
+			"ENCODE_EVEN",
+			"key",
+			"key=",
+			"key",
+			"send",
+			"Encode",
+			"Send",
+			"send",
+			"miners_built",
+			"runHQ",
+			"sendIn",
+			"Encode",
+			"robot.",
+			"broadcastLocs",
+			"robot",
+			"rc.",
+			"DECE",
+			"checksum1",
+			"checksum",
+			"filterMess",
+			"filterM",
+			"checksum",
+			"FilterM",
+			"IMPORTANT_TRANSC_COST",
+			"Broad",
+			"Miner1(",
+			"Decode1(",
+			"Decode1",
+			"Decod",
+			"Encode1",
+			"ReadNews",
+			"REFInery_",
+			"REFInery",
+			"REFI",
+			"REFE",
+			"REFINERY",
+			"NEWS_REFINERY_FOUND",
+			"TransactionLength",
+			"EncodeMapLocation",
+			"runHQ",
+			"runMiner",
+			"iterator",
+			"Maplocation",
+			"Refinery",
+			"Soup",
+			"Refinery",
+			"Filter",
+			"System",
+			"Magazine",
+			"^\n",
+			"^",
+			"length()",
+			"(",
+			"length",
+			"News",
+			"CMD_ChannelInitialize",
+			"Para",
+			"LoadConfigFile",
+			"Overwrite",
+			"DAQ_POSITION_FILE",
+			"OverwriteDefault",
+			"No valid file",
+			"inline",
+			".pos",
+			"pos",
+			"overwrite",
+			"OverWr",
+			"GetConfigPara",
+			"savedSpawnLoc",
+			"spiralOffset",
+			"tryMining",
+			"tryClusteredBuild"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"robot.",
+			"Decode(",
+			"Encode",
+			"NEWS_REFINERY_BUILD",
+			"Iterator",
+			"MapLocation",
+			"RefineryLocs",
+			"SoupLocs"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Activity.java",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1103,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								320,
+								320
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Java/Java.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 324.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "MinerActivity.java",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 159,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Java/Java.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "RobotPlayer.java",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 37112,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6706,
+								6706
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Java/Java.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 270.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "SmartMiner.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 226.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

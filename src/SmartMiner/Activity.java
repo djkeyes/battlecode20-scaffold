@@ -22,6 +22,11 @@ public abstract class Activity
 		isDone = true;		// is it Done yet
 	}
 
+	public Activity(int activityName)
+	{
+
+	}
+
 	public void activityDone()
 	{
 		isDone=true;
@@ -34,7 +39,7 @@ public abstract class Activity
 	{
 		return !isDone;
 	}
-	abstract boolean do();
+	abstract boolean tryNextMove();
 
 }
 
@@ -47,15 +52,41 @@ class MarchingActivity extends Activity
 		super(robot,myHQ,enemyHQ);
 		Target=target;
 	}
+	
+	public MarchingActivity(MapLocation target)
+	{
+		super(robot,myHQ,enemyHQ);
+		Target=target;
+	}
 
+	// Simple part finding
+	// false means can't move
 	void boolean tryNextMove()
 	{
 		Direction nextMove=rc.directionTo(Target);
-		if(rc.canMove(nextMove))
+		boolean canMove;
+		if(canMove=rc.canMove(nextMove))
 		{
 			rc.move(nextMove);
-			if(rc.)
 		}
+		else if(canMove=rc.canMove(nextMove.rotateLeft()))
+		{
+			rc.move(nextMove.rotateLeft());
+		}
+		else if(canMove=rc.canMove(nextMove.rotateRight()))
+		{
+			rc.move(nextMove.rotateRight);
+		}
+		else
+		{
+			canMove=false;
+		}
+		// if target reached, stop activity
+		if(canMove && rc.getLocation().equals(Target))
+		{
+			this.activityDone();
+		}
+		return canMove;
 	}
 
 }

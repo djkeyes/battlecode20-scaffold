@@ -2,12 +2,15 @@ package SmartMiner;
 
 import battlecode.common.*;
 
-public class MinerActivity extends Activity
+public class MinerActivity
 {
-	public enum MinerActivity
+	public class FindMineActivity()
 	{
-		DO_NOTHING,
-		MARCHING	
-	}	
+		DlinkedList<Activity> Thoughts;
+		public FindMineActivity()
+		{
+			Thoughts.add(new MarchingActivity())
+		}
+	}
 }
 
