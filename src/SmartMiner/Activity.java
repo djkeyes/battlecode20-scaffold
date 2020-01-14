@@ -46,22 +46,26 @@ public abstract class Activity
 class MarchingActivity extends Activity
 {
 	MapLocation Target;
-
+	MiniBitMapUtils trailMap;
 	public MarchingActivity(MapLocation target, RobotController robot, MapLocation myHQ,MapLocation enemyHQ)
 	{
 		super(robot,myHQ,enemyHQ);
 		Target=target;
+		trailMap=new MiniBitMapUtils(rc.getMapWidth(),rc.getMapHeight());
+		trailMap.set(target.getLocation().x,target.getLocation().y);
 	}
 	
 	public MarchingActivity(MapLocation target)
 	{
-		super(robot,myHQ,enemyHQ);
 		Target=target;
+		trailMap=new MiniBitMapUtils(rc.getMapWidth(),rc.getMapHeight().y);
+		trailMap.set(target.getLocation().x,target.getLocation().y);
 	}
 
 	// Simple part finding
 	// false means can't move
-	void boolean tryNextMove()
+	// throw NoSuchMethodException if no path found 
+	void boolean tryNextMove() throws NoSuchMethodException
 	{
 		Direction nextMove=rc.directionTo(Target);
 		boolean canMove;
