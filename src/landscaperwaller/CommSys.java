@@ -18,12 +18,12 @@ import java.util.ArrayList;
  *   In your RobotController class
  *   when you need to send the command, use
  *   function send(int[] message)
- *   maximal length of message is GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+ *   maximal length of message is GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH
  *   You have to put the COMMAND CODE of your code to the
  *   first element of your message array (i.e:message[0])
  *   a message array needs at least 1 element
  *   the size of the message array can be smaller than
- *   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH
+ *   GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH
  */
 
 public class CommSys
@@ -51,7 +51,7 @@ public class CommSys
     *       Plan 2 is more economical in term of computational power
     */
 
-    public static final int MESSAGE_LENGTH             =   GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;
+    public static final int MESSAGE_LENGTH             =   GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH;
     public static final int UNIMPORTANT_TRANSC_COST    =   1;
     public static final int IMPORTANT_TRANSC_COST      =   5;          // I am so cheap
     // ENCODE_EVEN->DECODE_EVEN ECONDE_ODD->DECODE_ODD
@@ -223,7 +223,7 @@ public class CommSys
                 // HOW???
                 // Instead of removing the message, let makes the first message become invalid
                 // This might not be a most clever way to do this, but it quick, so!
-                Magazine[0]= new Transaction(1,new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH],1);
+                Magazine[0]= new Transaction(1,new int[GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH],1);
                 return true;
             }
             else
@@ -392,8 +392,8 @@ public class CommSys
 
     private int[] RandomMessage()
     {
-        final int[] randMess= new int[GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH];
-        for(int i=0;i<GameConstants.MAX_BLOCKCHAIN_TRANSACTION_LENGTH;i++)
+        final int[] randMess= new int[GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH];
+        for(int i=0;i<GameConstants.BLOCKCHAIN_TRANSACTION_LENGTH;i++)
         {
             randMess[i]=robot.getID()*(i+1);     // Math.random() does not work ? so Whatever
         }
