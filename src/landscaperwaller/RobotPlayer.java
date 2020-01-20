@@ -7,6 +7,7 @@ import static landscaperwaller.BugPathfinding.setTargetLocationWithoutReset;
 import static landscaperwaller.BugPathfinding.trySetTargetLocation;
 import static landscaperwaller.CommSys.DECENT_TRANSACTION_COST;
 import static landscaperwaller.SimplePathfinding.badPathFindTo;
+import static landscaperwaller.SimplePathfinding.canMoveWithFlooding;
 
 public final strictfp class RobotPlayer {
 
@@ -53,7 +54,7 @@ public final strictfp class RobotPlayer {
         turnCount = 0;
 
         final String enablePrintingProp = System.getProperty("bc.testing.local-testing");
-        final boolean enablePrinting = enablePrintingProp != null && enablePrintingProp.equals("true");
+        final boolean enablePrinting = true; //enablePrintingProp != null && enablePrintingProp.equals("true");
 
         savedSpawnLoc = rc.getLocation();
         commSys = new CommSys(rc);
@@ -584,7 +585,7 @@ public final strictfp class RobotPlayer {
                             Math.acos((orientation.dx * dx + orientation.dy * dy) / Math.sqrt(orientation.dx * orientation.dx + orientation.dy * orientation.dy) / Math.sqrt(dx * dx + dy * dy));
 
                     if (absAngle > furthestTileAngle) {
-                        if (rc.getLocation().isAdjacentTo(tile) && rc.canMove(rc.getLocation().directionTo(tile))) {
+                        if (rc.getLocation().isAdjacentTo(tile) && canMoveWithFlooding(rc.getLocation().directionTo(tile), rc.getCurrentSensorRadiusSquared())) {
                             furthestTileAngle = absAngle;
                             furthestTile = tile;
                         }

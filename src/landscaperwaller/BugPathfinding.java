@@ -5,6 +5,7 @@ import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 
 import static landscaperwaller.RobotPlayer.rc;
+import static landscaperwaller.SimplePathfinding.canMoveWithFlooding;
 
 /**
  * Bug pathfinding. This code is partly based on the duck's 2016 submission.
@@ -20,6 +21,8 @@ public final class BugPathfinding {
     private static int closestDistWhileBugging = Integer.MAX_VALUE;
     private static int bugNumTurnsWithNoWall = 0;
     private static boolean bugWallOnLeft = true; // whether the wall is on our left or our right
+
+    private static int latestSensorRadius = 0;
 
     /**
      * Sets a target location for bug pathfinding
@@ -51,17 +54,17 @@ public final class BugPathfinding {
     }
 
     public static BehaviorResult tryMoveInDirection(final Direction dir) throws GameActionException {
-        if (rc.canMove(dir)) {
+        if (canMoveWithFlooding(dir, latestSensorRadius)) {
             rc.move(dir);
             return BehaviorResult.SUCCESS;
         }
         final Direction left = dir.rotateLeft();
-        if (rc.canMove(left)) {
+        if (canMoveWithFlooding(left, latestSensorRadius)) {
             rc.move(left);
             return BehaviorResult.SUCCESS;
         }
         final Direction right = dir.rotateRight();
-        if (rc.canMove(right)) {
+        if (canMoveWithFlooding(right, latestSensorRadius)) {
             rc.move(right);
             return BehaviorResult.SUCCESS;
         }
@@ -69,6 +72,7 @@ public final class BugPathfinding {
     }
 
     public static BehaviorResult goToBug() throws GameActionException {
+        latestSensorRadius = rc.getCurrentSensorRadiusSquared();
         currentLoc = rc.getLocation();
         // TODO: should this be a precondition for this function? might save bytecodes.
         if (currentLoc.equals(targetLocation)) {
@@ -110,7 +114,7 @@ public final class BugPathfinding {
         bugTracing = false;
     }
 
-    private static void bugStartTracing() {
+    private static void bugStartTracing() throws GameActionException {
         bugTracing = true;
         bugVisitedLocations.reset();
 
@@ -122,7 +126,7 @@ public final class BugPathfinding {
         int leftDistSq = Integer.MAX_VALUE;
         for (int i = 0; i < 8; ++i) {
             leftDir = leftDir.rotateLeft();
-            if (rc.canMove(leftDir)) {
+            if (canMoveWithFlooding(leftDir, latestSensorRadius)) {
                 leftDistSq = currentLoc.add(leftDir).distanceSquaredTo(targetLocation);
                 break;
             }
@@ -131,7 +135,7 @@ public final class BugPathfinding {
         int rightDistSq = Integer.MAX_VALUE;
         for (int i = 0; i < 8; ++i) {
             rightDir = rightDir.rotateRight();
-            if (rc.canMove(rightDir)) {
+            if (canMoveWithFlooding(rightDir, latestSensorRadius)) {
                 rightDistSq = currentLoc.add(rightDir).distanceSquaredTo(targetLocation);
                 break;
             }
@@ -148,7 +152,7 @@ public final class BugPathfinding {
     private static BehaviorResult bugTraceMove(final boolean recursed) throws GameActionException {
         Direction tryDir = currentLoc.directionTo(bugLastWall);
         bugVisitedLocations.setTrue(currentLoc.x, currentLoc.y);
-        if (rc.canMove(tryDir)) {
+        if (canMoveWithFlooding(tryDir, latestSensorRadius)) {
             bugNumTurnsWithNoWall += 1;
         } else {
             bugNumTurnsWithNoWall = 0;
@@ -165,7 +169,7 @@ public final class BugPathfinding {
                 bugWallOnLeft = !bugWallOnLeft;
                 return bugTraceMove(true);
             }
-            if (rc.canMove(tryDir)) {
+            if (canMoveWithFlooding(tryDir, latestSensorRadius)) {
                 rc.move(tryDir);
                 currentLoc = rc.getLocation(); // we just moved
                 if (bugVisitedLocations.get(currentLoc.x, currentLoc.y)) {
