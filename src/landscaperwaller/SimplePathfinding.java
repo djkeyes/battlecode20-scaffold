@@ -4,7 +4,6 @@ import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 
-import static landscaperwaller.RobotPlayer.onTheMap;
 import static landscaperwaller.RobotPlayer.rc;
 
 public final class SimplePathfinding {
@@ -20,7 +19,7 @@ public final class SimplePathfinding {
             // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
             if (!rc.getType().canFly()) {
                 final MapLocation next = rc.getLocation().add(dir);
-                if (onTheMap(rc, next) && rc.senseFlooding(next)) {
+                if (rc.onTheMap(next) && rc.senseFlooding(next)) {
                     continue;
                 }
             }
@@ -33,7 +32,7 @@ public final class SimplePathfinding {
                 // FIXME: canMove is supposed to check for flooded tiles, but it doesn't for some reason
                 if (!rc.getType().canFly()) {
                     final MapLocation next = rc.getLocation().add(dir);
-                    if (onTheMap(rc, next) && rc.senseFlooding(next)) {
+                    if (rc.onTheMap(next) && rc.senseFlooding(next)) {
                         continue;
                     }
                 }

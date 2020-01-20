@@ -241,7 +241,7 @@ public final strictfp class RobotPlayer {
                     break;
                 }
                 final MapLocation loc = rc.getLocation().translate(offset[0], offset[1]);
-                if (!onTheMap(rc, loc)) {
+                if (!rc.onTheMap(loc)) {
                     continue;
                 }
                 final int soup = rc.senseSoup(loc);
@@ -310,11 +310,6 @@ public final strictfp class RobotPlayer {
             }
         }
         return BehaviorResult.FAIL;
-    }
-
-    static boolean onTheMap(final RobotController rc, final MapLocation loc) {
-        // FIXME: this is a quick fix, until the function rc.onTheMap is fixed in the engine.
-        return loc.x >= 0 && loc.y >= 0 && loc.x < rc.getMapWidth() && loc.y < rc.getMapHeight();
     }
 
     private static BehaviorResult tryClusteredBuild() throws GameActionException {

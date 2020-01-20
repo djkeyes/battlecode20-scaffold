@@ -4,7 +4,6 @@ import battlecode.common.Direction;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 
-import static landscaperwaller.RobotPlayer.onTheMap;
 import static landscaperwaller.RobotPlayer.rc;
 
 /**
@@ -161,7 +160,7 @@ public final class BugPathfinding {
                 tryDir = tryDir.rotateLeft();
             }
             final MapLocation dirLoc = currentLoc.add(tryDir);
-            if (!onTheMap(rc, dirLoc) && !recursed) {
+            if (!rc.onTheMap(dirLoc) && !recursed) {
                 // if we hit the edge of the map, reverse direction and recurse
                 bugWallOnLeft = !bugWallOnLeft;
                 return bugTraceMove(true);
