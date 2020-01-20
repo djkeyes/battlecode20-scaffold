@@ -9,6 +9,14 @@ import static SmartMiner.CommSys.DECENT_TRANSACTION_COST;
 import static SmartMiner.SimplePathfinding.badPathFindTo;
 
 public final strictfp class RobotPlayer {
+
+    // FIXME: rc.getRobotCount() was removed from the game specs. We should replace it with a combination of 1. a
+    //  unified interface to sense, cache, and track nearby robots, and 2. global comms to communicate the approximate
+    //  number of constructed robots
+    static int getRobotCount() {
+        return rc.senseNearbyRobots().length;
+    }
+
     static final Direction[] cardinalDirections = Direction.cardinalDirections();
     static final Direction[] octalDirections = {NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST};
     static final Direction[] diagonalDirections = {NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST};
@@ -318,7 +326,7 @@ public final strictfp class RobotPlayer {
     private static BehaviorResult tryClusteredBuild() throws GameActionException {
         // during the initial build order, unless you're rushing landscapers, it always makes sense to build 2
         // miners before building a design school. Miner + Miner + HQ = 3
-        if (rc.getRobotCount() < 3) {
+        if (getRobotCount() < 3) {
             return BehaviorResult.FAIL;
         }
 
@@ -820,7 +828,7 @@ public final strictfp class RobotPlayer {
         boolean needToUpdateTarget = false;
         if (attackTarget == null) {
             // try to distribute different targets
-            lastSymmetryAssumption = rc.getRobotCount() % 3;
+            lastSymmetryAssumption = getRobotCount() % 3;
             needToUpdateTarget = true;
         }
 
