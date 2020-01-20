@@ -254,7 +254,9 @@ public class CommSys
 
     public void broadcastLocs(final int messageCode, final int x, final int y) throws GameActionException
     {
-        final int[] news=new int[]{messageCode,EncodeMapLocation(x,y)};
+        final int[] news=new int[MESSAGE_LENGTH];
+        news[0] = messageCode;
+        news[1] = EncodeMapLocation(x,y);
         send(news,DECENT_TRANSACTION_COST);
     }
 
@@ -298,7 +300,7 @@ public class CommSys
     public boolean send(final int[] message, final int bid) throws GameActionException
     {
         final int[] encodedMessage=EncodeMessage(message);
-        if(robot.canSubmitTransaction(encodedMessage,bid))
+        if(robot.getTeamSoup() >= bid)
         {
             robot.submitTransaction(encodedMessage,bid);
             return true;
@@ -446,7 +448,7 @@ public class CommSys
             throw(new IllegalStateException());
         }
 
-        final int[] tmp=new int[message.length];
+        final int[] tmp=new int[MESSAGE_LENGTH];
         for(int i=0;i<message.length;i++)
         {
             tmp[i]=Encode(message[i],Key[i],(i%2==0?ENCODE_EVEN:ENCODE_ODD));
