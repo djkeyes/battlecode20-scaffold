@@ -728,10 +728,10 @@ public final strictfp class RobotPlayer {
                     if (rc.getLocation().distanceSquaredTo(location) <= rc.getCurrentSensorRadiusSquared()) {
                         final RobotInfo robot = rc.senseRobotAtLocation(location);
                         if (robot == null || robot.type != RobotType.HQ) {
-                            MapSymmetry.eliminateSymmetry(lastSymmetryAssumption);
+                            MapSymmetry.eliminateSymmetry(i);
                         } else {
                             if (rc.getTeamSoup() >= DECENT_TRANSACTION_COST) {
-                                MapSymmetry.setSymmetry(lastSymmetryAssumption);
+                                MapSymmetry.setSymmetry(i);
                                 commSys.broadcastLocs(CommSys.NEWS_ENEMY_HQ_FOUND, robot.location);
                                 return BehaviorResult.SUCCESS;
                             } else {
