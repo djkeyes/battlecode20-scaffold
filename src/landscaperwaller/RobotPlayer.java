@@ -53,7 +53,7 @@ public final strictfp class RobotPlayer {
         turnCount = 0;
 
         final String enablePrintingProp = System.getProperty("bc.testing.local-testing");
-        final boolean enablePrinting = true; //enablePrintingProp != null && enablePrintingProp.equals("true");
+        final boolean enablePrinting = enablePrintingProp != null && enablePrintingProp.equals("true");
 
         savedSpawnLoc = rc.getLocation();
         commSys = new CommSys(rc);
@@ -696,7 +696,6 @@ public final strictfp class RobotPlayer {
             return BehaviorResult.FAIL;
         }
 
-        rc.setIndicatorLine(rc.getLocation(), bestToDig.location, 0, 255, 0);
         rc.digDirt(bestDirToDig);
         return BehaviorResult.SUCCESS;
     }
