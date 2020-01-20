@@ -3,8 +3,7 @@ package landscaperwaller;
 import battlecode.common.*;
 
 import static battlecode.common.Direction.*;
-import static landscaperwaller.BugPathfinding.setTargetLocationWithoutReset;
-import static landscaperwaller.BugPathfinding.trySetTargetLocation;
+import static landscaperwaller.BugPathfinding.*;
 import static landscaperwaller.CommSys.DECENT_TRANSACTION_COST;
 import static landscaperwaller.SimplePathfinding.badPathFindTo;
 import static landscaperwaller.SimplePathfinding.canMoveWithFlooding;
@@ -428,7 +427,8 @@ public final strictfp class RobotPlayer {
             }
         }
         // otherwise, path there
-        return badPathFindTo(closestLoc);
+        trySetTargetLocation(hqLocation);
+        return pathfind();
     }
 
     private static RobotInfo findNearestByType(final RobotInfo[] nearby, final RobotType type) {
